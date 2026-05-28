@@ -1,13 +1,19 @@
+<<<<<<< HEAD
 using Microsoft.EntityFrameworkCore;
 using CMS.Data;
+=======
+>>>>>>> 52953109962b26b561ae8d8cbde891def7b8a1a1
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
+<<<<<<< HEAD
 // Đăng ký DbContext vào hệ thống
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+=======
+>>>>>>> 52953109962b26b561ae8d8cbde891def7b8a1a1
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
