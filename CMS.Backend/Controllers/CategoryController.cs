@@ -1,41 +1,25 @@
-<<<<<<< HEAD
-﻿using CMS.Data;
 using Microsoft.AspNetCore.Mvc;
-
-public class CategoryController : Controller
-{
-    private readonly ApplicationDbContext _context;
-
-    // "Tiêm" kết nối vào Controller
-    public CategoryController(ApplicationDbContext context)
-    {
-        _context = context;
-    }
-
-    public IActionResult Index()
-    {
-        // Lấy dữ liệu THẬT từ bảng Categories trong SQL
-        var data = _context.Categories.ToList();
-        return View(data);
-    }
-}
-=======
-﻿using Microsoft.AspNetCore.Mvc;
-using CMS.Data.Entities;
+using CMS.Data;
+using System.Linq;
 
 namespace CMS.Backend.Controllers
 {
     public class CategoryController : Controller
     {
+        private readonly ApplicationDbContext _context;
+
+        // Tiêm DbContext vào Constructor để kết nối Database máy nhà
+        public CategoryController(ApplicationDbContext context)
+        {
+            _context = context;
+        }
+
+        // Action hiển thị danh sách bài tập 3
         public IActionResult Index()
         {
-            // Tạo danh sách dữ liệu mẫu trực tiếp trong code
-            var list = new List<Category> {
-            new Category { Id = 1, Name = "Tin Công Nghệ", Description = "Review Laptop, AI" },
-            new Category { Id = 2, Name = "Giáo Dục", Description = "Thông tin tuyển sinh" }
-        };
-            return View(list); // Gửi danh sách này sang giao diện
+            // Thay .Categories bằng tên thuộc tính DbSet tương ứng trong DbContext của bạn (ví dụ: CategoriesProducts)
+            var categories = _context.Categories.ToList();
+            return View(categories);
         }
     }
 }
->>>>>>> 52953109962b26b561ae8d8cbde891def7b8a1a1
