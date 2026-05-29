@@ -1,4 +1,8 @@
-﻿@model IEnumerable<CMS.Data.Entities.Category>
+﻿Razor CSHTML
+@{
+    Layout = "_LayoutAdmin";
+}
+@model IEnumerable<CMS.Data.Entities.Category>
 <h2 class="text-primary">DANH SÁCH DANH MỤC (DỮ LIỆU THẬT LẤY TỪ DATABASE)</h2>
 <table class="table table-bordered">
     <a asp-action="Create" class="btn btn-success">
