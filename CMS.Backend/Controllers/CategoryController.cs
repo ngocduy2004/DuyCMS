@@ -2,9 +2,13 @@ using CMS.Data;
 using CMS.Data.Entities;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
+using Microsoft.AspNetCore.Authorization; // Cần thêm namespace này
 
 namespace CMS.Backend.Controllers
 {
+    
+
+    [Authorize] // Bắt buộc phải đăng nhập mới được vào các hàm bên dưới
     public class CategoryController : Controller
     {
         private readonly ApplicationDbContext _context;
