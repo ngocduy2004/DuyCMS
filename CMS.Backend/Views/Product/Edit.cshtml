@@ -1,0 +1,83 @@
+﻿@model CMS.Data.Entities.Product
+
+@{
+    ViewData["Title"] = "Chỉnh sửa Sản phẩm";
+}
+
+<div class="container mt-4">
+    <h3 class="text-uppercase text-warning font-weight-bold mb-3">Chỉnh Sửa Sản Phẩm</h3>
+    <hr />
+
+    <div class="row">
+        <div class="col-md-8">
+            <form asp-action="Edit" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <input type="hidden" asp-for="Id" />
+
+                <div class="form-group mb-3">
+                    <label asp-for="Name" class="control-label font-weight-bold">Tên Sản Phẩm <span class="text-danger">*</span></label>
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 form-group mb-3">
+                        <label asp-for="Price" class="control-label font-weight-bold">Giá Bán (VNĐ)</label>
+                        <input asp-for="Price" type="number" step="0.01" class="form-control" />
+                        <span asp-validation-for="Price" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6 form-group mb-3">
+                        <label asp-for="StockQuantity" class="control-label font-weight-bold">Tồn Kho</label>
+                        <input asp-for="StockQuantity" type="number" class="form-control" />
+                        <span asp-validation-for="StockQuantity" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="CategoryProductId" class="control-label font-weight-bold">Danh Mục Sản Phẩm</label>
+                    <select asp-for="CategoryProductId" class="form-control" asp-items="ViewBag.CategoryList">
+                        <option value="">-- Chọn danh mục --</option>
+                    </select>
+                    <span asp-validation-for="CategoryProductId" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="ImageUrl" class="control-label font-weight-bold">Đường dẫn Hình Ảnh (URL)</label>
+                    <input asp-for="ImageUrl" class="form-control" />
+                    <span asp-validation-for="ImageUrl" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-4">
+                    <label asp-for="Description" class="control-label font-weight-bold">Mô Tả Sản Phẩm</label>
+                    <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-warning px-4 text-white">Cập Nhật</button>
+                    <a asp-action="Index" class="btn btn-secondary ms-2">Quay Lại</a>
+                </div>
+            </form>
+        </div>
+
+        <div class="col-md-4 text-center mt-4">
+            <h5 class="text-muted">Ảnh Hiện Tại</h5>
+            @if (!string.IsNullOrEmpty(Model.ImageUrl))
+            {
+                <img src="@Model.ImageUrl" alt="Ảnh sản phẩm" class="img-fluid img-thumbnail" style="max-height: 250px; object-fit: cover;" onError="this.src='https://placehold.co/250'" />
+            }
+            else
+            {
+                <img src="https://placehold.co/250" alt="No Image" class="img-fluid img-thumbnail" />
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

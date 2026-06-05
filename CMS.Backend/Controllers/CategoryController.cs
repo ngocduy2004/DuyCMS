@@ -47,22 +47,27 @@ namespace CMS.Backend.Controllers
             return RedirectToAction("Index");
         }
 
+        // ==========================================
+        // 2. CHỨC NĂNG XÓA (DELETE)
+        // ==========================================
+
+        // Hàm xóa trực tiếp dựa theo đúng logic bạn cung cấp
         public IActionResult Delete(int id)
         {
-            // Bước 1: Tìm đối tượng danh mục trong Database bằng Id
-            var category = _context.Categories.Find(id);
+            // Bước 1: Tìm đối tượng trong Database bằng Id
+            var product = _context.Products.Find(id);
 
             // Kiểm tra nếu tìm thấy thì mới xóa
-            if (category != null)
+            if (product != null)
             {
-                // Bước 2: Lệnh xóa khỏi bộ nhớ tạm (Tracking)
-                _context.Categories.Remove(category);
+                // Bước 2: Xóa khỏi bộ nhớ tạm
+                _context.Products.Remove(product);
 
                 // Bước 3: Chốt phiên làm việc, xóa thực sự trong SQL Server
                 _context.SaveChanges();
             }
 
-            // Sau khi xóa xong, quay lại trang danh sách để cập nhật giao diện
+            // Sau khi xóa xong, quay lại trang danh sách
             return RedirectToAction("Index");
         }
 
