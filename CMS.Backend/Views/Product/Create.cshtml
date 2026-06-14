@@ -10,7 +10,7 @@
 
     <div class="row">
         <div class="col-md-8">
-            <form asp-action="Create" method="post">
+            <form asp-action="Create" method="post" enctype="multipart/form-data">
                 <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
                 <div class="form-group mb-3">
@@ -42,9 +42,13 @@
                 </div>
 
                 <div class="form-group mb-3">
-                    <label asp-for="ImageUrl" class="control-label font-weight-bold">Đường dẫn Hình Ảnh (URL)</label>
-                    <input asp-for="ImageUrl" class="form-control" placeholder="https://..." />
-                    <span asp-validation-for="ImageUrl" class="text-danger"></span>
+                    <label class="control-label font-weight-bold">Hình Ảnh Sản Phẩm</label>
+                    <input type="file" id="ImageUpload" name="ImageFile" class="form-control" accept="image/*" />
+                    <small class="text-muted">Chọn ảnh từ thiết bị của bạn.</small>
+
+                    <div class="mt-3">
+                        <img id="ImagePreview" src="" alt="Ảnh xem trước" class="img-thumbnail" style="max-height: 200px; display: none;" />
+                    </div>
                 </div>
 
                 <div class="form-group mb-4">
@@ -66,4 +70,21 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+
+    <script>
+        document.getElementById('ImageUpload').addEventListener('change', function (event) {
+            const file = event.target.files[0]; // Lấy file đầu tiên người dùng chọn
+            const preview = document.getElementById('ImagePreview'); // Lấy thẻ img preview
+
+            if (file) {
+                // Tạo một URL tạm thời cho file ảnh và gán vào src của thẻ img
+                preview.src = URL.createObjectURL(file);
+                preview.style.display = 'block'; // Hiển thị thẻ img
+            } else {
+                // Nếu người dùng hủy chọn, ẩn thẻ img đi
+                preview.src = '';
+                preview.style.display = 'none';
+            }
+        });
+    </script>
 }

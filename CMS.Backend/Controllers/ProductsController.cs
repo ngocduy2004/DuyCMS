@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using CMS.Data;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace CMS.Backend.Controllers
 {
@@ -54,10 +55,22 @@ namespace CMS.Backend.Controllers
         [HttpGet("{id}")]
         public IActionResult GetDetail(int id)
         {
-            var product = _context.Products.FirstOrDefault(p => p.Id == id);
-            if (product == null) return NotFound(new { message = "Không tìm thấy sản phẩm này" });
+            var product = _context.Products
+                .Include(p => p.ProductCategory) // Nạp thông tin danh mục
+                .FirstOrDefault(p => p.Id == id);
 
-            return Ok(product);
+            if (product == null) return NotFound();
+
+            return Ok(new
+            {
+                product.Id,
+                product.Name,
+                product.Price,
+                product.Description,
+                product.ImageUrl,
+                product.StockQuantity,
+                CategoryName = product.ProductCategory?.Name
+            });
         }
     }
 }

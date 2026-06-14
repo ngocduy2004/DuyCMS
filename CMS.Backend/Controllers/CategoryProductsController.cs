@@ -4,7 +4,8 @@ using System.Linq;
 
 namespace CMS.Backend.Controllers
 {
-    [Route("api/[controller]")]
+
+    [Route("api/[controller]")] // Đường dẫn sẽ là /api/CategoriesProducts
     [ApiController]
     public class CategoryProductsController : ControllerBase
     {

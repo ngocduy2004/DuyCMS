@@ -43,6 +43,7 @@ namespace CMS.Backend.Controllers
         }
 
         // Chi tiết bài viết
+        [AllowAnonymous]
         public IActionResult Details(int id)
         {
             // 1. Truy vấn bài viết theo ID

@@ -10,10 +10,11 @@
 
     <div class="row">
         <div class="col-md-8">
-            <form asp-action="Edit" method="post">
+            <form asp-action="Edit" method="post" enctype="multipart/form-data">
                 <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
                 <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="ImageUrl" />
 
                 <div class="form-group mb-3">
                     <label asp-for="Name" class="control-label font-weight-bold">Tên Sản Phẩm <span class="text-danger">*</span></label>
@@ -44,9 +45,9 @@
                 </div>
 
                 <div class="form-group mb-3">
-                    <label asp-for="ImageUrl" class="control-label font-weight-bold">Đường dẫn Hình Ảnh (URL)</label>
-                    <input asp-for="ImageUrl" class="form-control" />
-                    <span asp-validation-for="ImageUrl" class="text-danger"></span>
+                    <label class="control-label font-weight-bold">Thay Đổi Hình Ảnh</label>
+                    <input type="file" id="ImageUpload" name="ImageFile" class="form-control" accept="image/*" />
+                    <small class="text-muted">Chọn ảnh mới nếu muốn thay đổi. Nếu không, hãy để trống.</small>
                 </div>
 
                 <div class="form-group mb-4">
@@ -66,11 +67,11 @@
             <h5 class="text-muted">Ảnh Hiện Tại</h5>
             @if (!string.IsNullOrEmpty(Model.ImageUrl))
             {
-                <img src="@Model.ImageUrl" alt="Ảnh sản phẩm" class="img-fluid img-thumbnail" style="max-height: 250px; object-fit: cover;" onError="this.src='https://placehold.co/250'" />
+                <img id="ImagePreview" src="@Model.ImageUrl" alt="Ảnh sản phẩm" class="img-fluid img-thumbnail" style="max-height: 250px; object-fit: cover;" onError="this.src='https://placehold.co/250'" />
             }
             else
             {
-                <img src="https://placehold.co/250" alt="No Image" class="img-fluid img-thumbnail" />
+                <img id="ImagePreview" src="https://placehold.co/250" alt="No Image" class="img-fluid img-thumbnail" style="max-height: 250px; object-fit: cover;" />
             }
         </div>
     </div>
@@ -80,4 +81,22 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+
+    <script>
+        const imageUpload = document.getElementById('ImageUpload');
+        const preview = document.getElementById('ImagePreview');
+        const originalSrc = preview.src; // Lưu lại đường dẫn ảnh gốc ban đầu
+
+        imageUpload.addEventListener('change', function (event) {
+            const file = event.target.files[0];
+
+            if (file) {
+                // Đổi ảnh hiện tại sang ảnh mới chọn
+                preview.src = URL.createObjectURL(file);
+            } else {
+                // Nếu người dùng bấm "Cancel" khi chọn file, trả lại ảnh gốc của DB
+                preview.src = originalSrc;
+            }
+        });
+    </script>
 }

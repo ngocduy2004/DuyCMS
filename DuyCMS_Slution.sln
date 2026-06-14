@@ -7,11 +7,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CMS.Data", "CMS.Data\CMS.Da
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CMS.Backend", "CMS.Backend\CMS.Backend.csproj", "{8BE4B4C9-88AE-4357-BBAD-F7450E6AEFA7}"
 EndProject
-Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "CMS.Frontend", "CMS.Frontend\", "{E0A84A16-A63C-4210-B074-16C9F602ED22}"
+Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "cms.frontend", "cms.frontend\", "{E0A84A16-A63C-4210-B074-16C9F602ED22}"
 	ProjectSection(WebsiteProperties) = preProject
 		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.8"
 		Debug.AspNetCompiler.VirtualPath = "/localhost_54726"
-		Debug.AspNetCompiler.PhysicalPath = "CMS.Frontend\"
+		Debug.AspNetCompiler.PhysicalPath = "cms.frontend\"
+		Debug.AspNetCompiler.PhysicalPath = "cms.frontend\"
 		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_54726\"
 		Debug.AspNetCompiler.Updateable = "true"
 		Debug.AspNetCompiler.ForceOverwrite = "true"
@@ -25,7 +26,7 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "CMS.Frontend", "CMS.Fronten
 		Release.AspNetCompiler.FixedNames = "false"
 		Release.AspNetCompiler.Debug = "False"
 		VWDPort = "54726"
-		SlnRelativePath = "CMS.Frontend\"
+		SlnRelativePath = "cms.frontend\"
 	EndProjectSection
 EndProject
 Global

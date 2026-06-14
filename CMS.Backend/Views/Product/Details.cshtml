@@ -1,0 +1,100 @@
+﻿@model CMS.Data.Entities.Product
+
+@{
+    ViewData["Title"] = Model.Name;
+}
+
+<style>
+    body {
+        background-color: #f8f9fa;
+    }
+
+    .product-img {
+        border-radius: 15px;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        max-height: 500px;
+        object-fit: cover;
+        width: 100%;
+    }
+
+    .price-tag {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #dc3545;
+    }
+</style>
+
+<div class="container py-5 mt-4">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/" class="text-success text-decoration-none">Trang chủ</a></li>
+            <li class="breadcrumb-item">
+                <a href="/?categoryId=@Model.CategoryProductId" class="text-success text-decoration-none">
+                    @(Model.ProductCategory?.Name ?? "Sản phẩm")
+                </a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">@Model.Name</li>
+        </ol>
+    </nav>
+
+    <div class="row g-5 bg-white p-4 rounded-4 shadow-sm">
+        <div class="col-md-6 text-center">
+            @if (!string.IsNullOrEmpty(Model.ImageUrl))
+            {
+                <img src="@Model.ImageUrl" alt="@Model.Name" class="product-img img-fluid" />
+            }
+            else
+            {
+                <img src="https://placehold.co/600x600?text=No+Image" alt="No Image" class="product-img img-fluid" />
+            }
+        </div>
+
+        <div class="col-md-6 d-flex flex-column">
+
+            <div class="mb-2">
+                <span class="badge bg-success px-3 py-2 rounded-pill fs-6">
+                    <i class="bi bi-tag-fill me-1"></i> @(Model.ProductCategory?.Name ?? "Chưa phân loại")
+                </span>
+            </div>
+
+            <h1 class="fw-bold text-dark mb-3">@Model.Name</h1>
+
+            <div class="mb-4 border-bottom pb-3">
+                <span class="price-tag">@Model.Price.ToString("N0") <small class="fs-5 text-muted">VNĐ</small></span>
+            </div>
+
+            <div class="mb-4">
+                <h5 class="fw-bold"><i class="bi bi-info-circle me-2"></i>Mô tả sản phẩm</h5>
+                <p class="text-muted" style="line-height: 1.8;">
+                    @(string.IsNullOrEmpty(Model.Description) ? "Đang cập nhật mô tả cho sản phẩm này..." : Model.Description)
+                </p>
+            </div>
+
+            <div class="mb-4">
+                <p class="mb-1 fw-bold">Tình trạng:</p>
+                @if (Model.StockQuantity > 0)
+                {
+                    <span class="badge bg-success-subtle text-success border border-success px-3 py-2">
+                        <i class="bi bi-check-circle-fill me-1"></i> Còn hàng (@Model.StockQuantity sản phẩm)
+                    </span>
+                }
+                else
+                {
+                    <span class="badge bg-danger-subtle text-danger border border-danger px-3 py-2">
+                        <i class="bi bi-x-circle-fill me-1"></i> Hết hàng
+                    </span>
+                }
+            </div>
+
+            <div class="mt-auto pt-3 d-flex gap-3">
+                <a href="#" class="btn btn-danger btn-lg flex-grow-1 rounded-pill shadow-sm fw-bold">
+                    <i class="bi bi-cart-plus me-2"></i> Thêm vào giỏ
+                </a>
+                <a href="/" class="btn btn-outline-secondary btn-lg rounded-pill px-4 shadow-sm">
+                    <i class="bi bi-arrow-left"></i> Quay lại
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>
