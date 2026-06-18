@@ -25,8 +25,9 @@ namespace CMS.Backend.Controllers
                    p.Id,
                    p.Title,
                    p.ImageUrl,
-                   p.CreatedDate, // Đã sửa từ CreatedAt sang CreatedDate
-                   CategoryName = p.Category.Name
+                   p.CreatedDate,
+                   CategoryName = p.Category.Name,
+                   Content = p.Content // ---> BỔ SUNG DÒNG NÀY ĐỂ REACT CÓ NỘI DUNG HIỂN THỊ
                })
                .ToList();
             return Ok(posts);
@@ -42,7 +43,8 @@ namespace CMS.Backend.Controllers
                     p.Id,
                     p.Title,
                     p.ImageUrl,
-                    p.CreatedDate // Đã sửa từ CreatedAt sang CreatedDate
+                    p.CreatedDate,
+                    Content = p.Content // ---> BỔ SUNG DÒNG NÀY Ở ĐÂY NỮA
                 })
                 .ToList();
             return Ok(posts);

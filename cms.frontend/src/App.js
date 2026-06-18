@@ -1,41 +1,52 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import CategoryList from './components/CategoryProductList';
-import ProductList from './components/ProductList';
-import ProductDetail from './components/ProductDetail'; // Component mới
+
+// 1. IMPORT LAYOUT DÙNG CHUNG
+import Header from './components/Header';
+import Footer from './components/Footer';
+
+// 2. IMPORT CÁC TRANG CHỨC NĂNG
+import Home from './pages/home/index';
+
+import ProductDetail from './pages/product-detail';
+
+// Sau này bạn có thể import thêm Shop, Blog, Cart, Checkout... tại đây
+import Blog from './pages/blog/index';
+import BlogDetail from './pages/blog/BlogDetail';
 import './App.css';
 
+// Layout bao bọc toàn bộ website
+const MainLayout = ({ children }) => (
+    <div className="d-flex flex-column min-vh-100">
+        <Header />
+        <main className="flex-grow-1">
+            {children}
+        </main>
+        <Footer />
+    </div>
+);
+
 function App() {
-    const [selectedCategoryId, setSelectedCategoryId] = useState(null);
-
-    // Trang chủ bao gồm Sidebar danh mục và danh sách sản phẩm
-    const HomePage = () => (
-        <div className="row">
-            <div className="col-md-4">
-                <CategoryList
-                    onCategorySelect={setSelectedCategoryId}
-                    activeCategoryId={selectedCategoryId}
-                />
-            </div>
-            <div className="col-md-8">
-                <h4 className="mb-4 text-uppercase">Bộ sưu tập mới nhất</h4>
-                <ProductList categoryId={selectedCategoryId} />
-            </div>
-        </div>
-    );
-
     return (
         <Router>
-            <div className="container mt-5">
-                <header className="pb-3 mb-4 border-bottom">
-                    <span className="fs-4 font-weight-bold text-dark">👗 FASHION BOUTIQUE</span>
-                </header>
-
+            <MainLayout>
                 <Routes>
-                    <Route path="/" element={<HomePage />} />
-                    <Route path="/product/:id" element={<ProductDetail />} />
+                    {/* Trang chủ - Sử dụng component Home đã tách */}
+                    <Route path="/" element={<Home />} />
+                 
+                    {/* Trang chi tiết sản phẩm */}
+                    <Route path="/product/:id" element={
+                        <div className="container py-4">
+                            <ProductDetail />
+                        </div>
+                    } />
+
+                    {/* Trang blog */}
+                    <Route path="/blog" element={<Blog />} />
+                    <Route path="/blog/:id" element={<BlogDetail />} />
+                    {/* Sau này thêm các Route khác tại đây */}
                 </Routes>
-            </div>
+            </MainLayout>
         </Router>
     );
 }
