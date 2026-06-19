@@ -13,6 +13,10 @@ import ProductDetail from './pages/product-detail';
 // Sau này bạn có thể import thêm Shop, Blog, Cart, Checkout... tại đây
 import Blog from './pages/blog/index';
 import BlogDetail from './pages/blog/BlogDetail';
+
+// BỔ SUNG: Import trang Shop vào đây!
+import Shop from './pages/shop/index';
+
 import './App.css';
 
 // Layout bao bọc toàn bộ website
@@ -21,7 +25,7 @@ const MainLayout = ({ children }) => (
         <Header />
         <main className="flex-grow-1">
             {children}
-        </main>
+        </main>2
         <Footer />
     </div>
 );
@@ -33,6 +37,9 @@ function App() {
                 <Routes>
                     {/* Trang chủ - Sử dụng component Home đã tách */}
                     <Route path="/" element={<Home />} />
+
+                    {/* BỔ SUNG: Cấu hình URL /shop sẽ mở Component Shop */}
+                    <Route path="/shop" element={<Shop />} />
                  
                     {/* Trang chi tiết sản phẩm */}
                     <Route path="/product/:id" element={

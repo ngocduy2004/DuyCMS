@@ -27,7 +27,8 @@ namespace CMS.Backend.Controllers
                    p.ImageUrl,
                    p.CreatedDate,
                    CategoryName = p.Category.Name,
-                   Content = p.Content // ---> BỔ SUNG DÒNG NÀY ĐỂ REACT CÓ NỘI DUNG HIỂN THỊ
+                   Content = p.Content, // ---> BỔ SUNG DÒNG NÀY ĐỂ REACT CÓ NỘI DUNG HIỂN THỊ
+                    CategoryId = p.CategoryId // ---> BẮT BUỘC PHẢI THÊM DÒNG NÀY
                })
                .ToList();
             return Ok(posts);
@@ -45,6 +46,7 @@ namespace CMS.Backend.Controllers
                     p.ImageUrl,
                     p.CreatedDate,
                     Content = p.Content // ---> BỔ SUNG DÒNG NÀY Ở ĐÂY NỮA
+                   
                 })
                 .ToList();
             return Ok(posts);
@@ -63,5 +65,7 @@ namespace CMS.Backend.Controllers
 
             return Ok(post);
         }
+
+
     }
 }

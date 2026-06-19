@@ -20,6 +20,10 @@ const LensMark = () => (
 );
 
 const Header = () => {
+    const handleLoginClick = (e) => {
+        e.preventDefault(); // Ngăn không cho chuyển sang trang /login
+        alert("Tính năng Đăng nhập đang được cập nhật. Vui lòng quay lại sau!");
+    };
     return (
         <header className="solis-header sticky-top">
             <nav className="solis-nav container">
@@ -48,7 +52,7 @@ const Header = () => {
                 <div className="solis-collapse" id="solisNavCollapse">
                     <ul className="solis-links">
                         <li><Link to="/">Trang chủ</Link></li>
-                        <li><Link to="/">Sản phẩm</Link></li>
+                        <li><Link to="/shop">Cửa hàng</Link></li>
                         <li><Link to="/blog">Tin tức</Link></li>
                     </ul>
 
@@ -57,7 +61,7 @@ const Header = () => {
                             <i className="fa-solid fa-magnifying-glass"></i>
                             <input type="search" placeholder="Tìm kính, gọng, kiểu dáng..." />
                         </label>
-                        <Link to="/login" className="solis-login">
+                        <Link to="/login" onClick={handleLoginClick} className="solis-login">
                             Đăng nhập
                         </Link>
                     </div>

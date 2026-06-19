@@ -1,0 +1,165 @@
+/* src/components/ProductCard.module.css */
+
+.card {
+    position: relative;
+    background: #fff;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    font-family: Arial, sans-serif;
+    cursor: pointer;
+    transition: box-shadow 0.2s;
+}
+
+    .card:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+.saleBadgeTop {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: #00bcd4;
+    color: #fff;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 3px 8px;
+    border-radius: 3px;
+    z-index: 2;
+}
+
+.brandLogoTop {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 2;
+    font-size: 13px;
+    font-weight: bold;
+    color: #333;
+    letter-spacing: 1px;
+}
+
+.dot {
+    color: #00bcd4;
+}
+
+.sup {
+    font-size: 10px;
+    vertical-align: super;
+}
+
+.imageContainer {
+    position: relative;
+    height: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    overflow: hidden;
+}
+
+.productImage {
+    max-height: 140px;
+    max-width: 90%;
+    object-fit: contain;
+    display: block;
+    transition: opacity 0.2s;
+}
+
+.productImageHover {
+    opacity: 0.5;
+}
+
+.hoverOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    z-index: 3;
+}
+
+.iconBtn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.92);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    color: #333;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    transition: background 0.15s;
+}
+
+    .iconBtn:hover {
+        background: #fff;
+    }
+
+.sku {
+    text-align: right;
+    font-size: 11px;
+    color: #aaa;
+    padding: 4px 12px 0;
+}
+
+.cardBody {
+    padding: 8px 12px 14px;
+}
+
+.productName {
+    font-weight: bold;
+    font-size: 14px;
+    color: #222;
+    margin-bottom: 8px;
+    line-height: 1.4;
+    min-height: 40px;
+}
+
+.priceRow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+}
+
+.currentPrice {
+    color: #00bcd4;
+    font-weight: bold;
+    font-size: 15px;
+}
+
+.oldPrice {
+    color: #aaa;
+    font-size: 13px;
+    text-decoration: line-through;
+}
+
+.saleBadgeBottom {
+    display: inline-block;
+    background: #00bcd4;
+    color: #fff;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 2px 8px;
+    border-radius: 3px;
+}
+
+.footer {
+    text-align: right;
+    padding: 4px 12px 10px;
+    font-size: 12px;
+    font-weight: bold;
+    color: #333;
+    letter-spacing: 1px;
+    border-top: 1px solid #f0f0f0;
+}
