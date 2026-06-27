@@ -1,15 +1,54 @@
 ﻿// src/components/ProductCard.jsx
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+
 import styles from '../assets/css/ProductCard.module.css';
 
 const ProductCard = ({ product }) => {
     const [hovered, setHovered] = useState(false);
+    const navigate = useNavigate(); // 2. Khởi tạo hook điều hướng
 
     const discountPercent = product.oldPrice
         ? Math.round((1 - product.price / product.oldPrice) * 100)
         : null;
 
+    const handleBuyNow = (e) => {
+        e.preventDefault();
+
+        // 1. Lấy dữ liệu giỏ hàng hiện tại
+        const cart = JSON.parse(localStorage.getItem('myCart')) || [];
+        const currentId = product.id || product.Id;
+        const existingItem = cart.find(item => (item.productId || item.id) === currentId);
+
+        // 2. Xác định tồn kho (Dự phòng trường hợp backend trả về các tên khác nhau)
+        const stockOfProduct = product.stockQuantity ?? product.stock ?? 999;
+
+        if (existingItem) {
+            // Nếu đã có trong giỏ, chỉ tăng số lượng nếu chưa vượt quá tồn kho
+            if (existingItem.quantity < stockOfProduct) {
+                existingItem.quantity += 1;
+            } else {
+                alert(`Sản phẩm này chỉ còn tối đa ${stockOfProduct} cái trong kho!`);
+            }
+        } else {
+            // 🔥 ĐÂY LÀ CHỖ CẦN SỬA: Thêm 'stockQuantity' vào đây
+            cart.push({
+                productId: currentId,
+                productName: product.name || product.Name,
+                price: product.price || product.Price,
+                imageUrl: product.imageUrl || product.ImageUrl,
+                quantity: 1,
+                stockQuantity: stockOfProduct // Cực kỳ quan trọng để hàm updateQuantity ở trang Cart không báo lỗi
+            });
+        }
+
+        // 3. Lưu lại
+        localStorage.setItem('myCart', JSON.stringify(cart));
+        window.dispatchEvent(new Event('cartUpdated'));
+
+        // 4. Chuyển trang
+        navigate('/cart');
+    };
     return (
         <div
             className={styles.card}
@@ -39,25 +78,11 @@ const ProductCard = ({ product }) => {
                 {/* Hover overlay icons */}
                 {hovered && (
                     <div className={styles.hoverOverlay}>
-                        {/* Zoom icon */}
-                        <Link
-                            to={`/product/${product.id}`}
-                            className={styles.iconBtn}
-                            title="Xem chi tiết"
-                        >
-                            🔍
-                        </Link>
+                        <Link to={`/product/${product.id}`} className={styles.iconBtn} title="Xem chi tiết">🔍</Link>
 
-                        {/* Cart icon */}
-                        <button
-                            onClick={(e) => {
-                                e.preventDefault();
-                                if (product.onAddToCart) product.onAddToCart(product);
-                            }}
-                            className={styles.iconBtn}
-                            title="Thêm vào giỏ"
-                        >
-                            🛒
+                        {/* Nút Mua ngay nằm trong overlay */}
+                        <button onClick={handleBuyNow} className={styles.iconBtn} title="Mua ngay">
+                            ⚡
                         </button>
                     </div>
                 )}

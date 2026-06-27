@@ -1,0 +1,70 @@
+﻿@model IEnumerable<CMS.Data.Entities.Banner>
+
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    ViewData["Title"] = "Quản lý Banner";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Danh sách Banner Trang Chủ</h2>
+    <a asp-action="Create" class="btn btn-success"><i class="fa-solid fa-plus"></i> Thêm Banner mới</a>
+</div>
+
+<table class="table table-striped table-bordered align-middle">
+    <thead class="table-dark">
+        <tr>
+            <th class="text-center" style="width: 150px;">Hình ảnh</th>
+            <th>Tiêu đề</th>
+            <th>Link điều hướng</th>
+            <th class="text-center">Thứ tự</th>
+            <th class="text-center">Trạng thái</th>
+            <th class="text-center" style="width: 150px;">Hành động</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td class="text-center">
+                    @if (!string.IsNullOrEmpty(item.ImageUrl))
+                    {
+                        <img src="@item.ImageUrl" alt="@item.Title" style="width: 120px; height: auto; border-radius: 5px; object-fit: cover;" />
+                    }
+                    else
+                    {
+                        <span class="text-muted">Chưa có ảnh</span>
+                    }
+                </td>
+                <td class="fw-bold">@item.Title</td>
+                <td>
+                    @if (!string.IsNullOrEmpty(item.TargetUrl))
+                    {
+                        <a href="@item.TargetUrl" target="_blank" class="text-info">@item.TargetUrl</a>
+                    }
+                </td>
+                <td class="text-center">@item.SortOrder</td>
+                <td class="text-center">
+                    @if (item.IsActive)
+                    {
+                        <span class="badge bg-success">Đang hiện</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary">Đã ẩn</span>
+                    }
+                </td>
+                <td class="text-center">
+                    <div class="btn-group" role="group">
+                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-sm">Sửa</a>
+                        <a asp-action="Delete"
+                           asp-route-id="@item.Id"
+                           class="btn btn-danger btn-sm"
+                           onclick="return confirm('Bạn có chắc chắn muốn xóa Banner này? Hành động này sẽ xóa cả file ảnh trên máy chủ.');">
+                            Xóa
+                        </a>
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

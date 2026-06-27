@@ -7,7 +7,7 @@ using System;
 
 namespace CMS.Backend.Controllers
 {
-    [Authorize] // Bắt buộc phải đăng nhập mới được vào các hàm bên dưới
+    [Authorize(AuthenticationSchemes = "AdminScheme")] // Bắt buộc phải đăng nhập mới được vào các hàm bên dưới
     [Authorize(Roles = "Admin")] // Chỉ tài khoản có Role là Admin mới được phép vào
     public class UserController : Controller
     {

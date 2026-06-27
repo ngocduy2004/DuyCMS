@@ -16,12 +16,37 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// 1. Khai báo dịch vụ xác thực Cookie
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(options =>
+//// 1. Khai báo dịch vụ xác thực Cookie
+//builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+//    .AddCookie(options =>
+//    {
+//        options.LoginPath = "/Account/Login"; // Đường dẫn nếu chưa đăng nhập
+//        options.AccessDeniedPath = "/Account/AccessDenied"; // Đường dẫn nếu vào trang không được phép
+//    });
+
+
+// 1. Khai báo dịch vụ xác thực Cookie (Cấu hình thông minh cho cả React và Trình duyệt)
+// --- CẤU HÌNH XÁC THỰC TÁCH BIỆT ---
+builder.Services.AddAuthentication()
+    .AddCookie("CustomerScheme", options =>
     {
-        options.LoginPath = "/Account/Login"; // Đường dẫn nếu chưa đăng nhập
-        options.AccessDeniedPath = "/Account/AccessDenied"; // Đường dẫn nếu vào trang không được phép
+        options.Cookie.Name = "CustomerAuthCookie"; // Tên cookie riêng cho khách
+        options.Cookie.SameSite = SameSiteMode.None;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        options.Cookie.HttpOnly = true;
+        options.LoginPath = "/Account/Login";
+
+        options.Events.OnRedirectToLogin = context => {
+            if (context.Request.Path.StartsWithSegments("/api")) context.Response.StatusCode = 401;
+            else context.Response.Redirect(context.RedirectUri);
+            return Task.CompletedTask;
+        };
+    })
+    .AddCookie("AdminScheme", options =>
+    {
+        options.Cookie.Name = "AdminAuthCookie"; // Tên cookie riêng cho admin
+        options.Cookie.HttpOnly = true;
+        options.LoginPath = "/Admin/Login";
     });
 
 // 1. Khai báo chính sách CORS
@@ -75,7 +100,7 @@ app.UseCors("AllowReactApp");
 
 
 // 2. Kích hoạt chính sách CORS đã khai báo ở trên
-app.UseCors("AllowAll");
+//app.UseCors("AllowAll");
 
 app.UseAuthentication();
 app.UseAuthorization();

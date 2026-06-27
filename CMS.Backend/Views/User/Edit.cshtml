@@ -9,7 +9,7 @@
             <h5 class="mb-0">CẬP NHẬT THÔNG TIN THÀNH VIÊN</h5>
         </div>
         <div class="card-body">
-            <form asp-action="Edit" method="post">
+            <form asp-action="Edit" asp-route-id="@Model.Id" enctype="multipart/form-data">
                 <input type="hidden" asp-for="Id" />
 
                 <div class="row mb-3">

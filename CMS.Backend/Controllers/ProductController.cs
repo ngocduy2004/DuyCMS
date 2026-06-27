@@ -13,7 +13,7 @@ using System.Threading.Tasks; // Thêm thư viện để dùng async/await
 
 namespace CMS.Backend.Controllers
 {
-    [Authorize]
+    [Authorize(AuthenticationSchemes = "AdminScheme")]
     public class ProductController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -98,9 +98,15 @@ namespace CMS.Backend.Controllers
         // POST: Nhận dữ liệu mới và cập nhật
         [HttpPost]
         [ValidateAntiForgeryToken]
-        // Đổi thành async Task và thêm IFormFile ImageFile
         public async Task<IActionResult> Edit(Product product, IFormFile ImageFile)
         {
+            // 🚨 THÊM CÁC DÒNG NÀY ĐỂ BỎ QUA KIỂM TRA LỖI CÁC BẢNG LIÊN KẾT
+            ModelState.Remove("ProductCategory"); // Tên biến liên kết đến bảng Category trong class Product
+            ModelState.Remove("OrderDetails");    // Tên biến liên kết đến bảng OrderDetail (nếu có)
+            ModelState.Remove("ImageFile");       // Bỏ qua lỗi bắt buộc phải có file ảnh
+
+            // Nếu bạn có thuộc tính tên khác, cứ thêm ModelState.Remove("TênThuộcTính"); vào đây
+
             if (ModelState.IsValid)
             {
                 // 1. Kiểm tra xem người dùng có tải ảnh mới lên không
@@ -122,20 +128,17 @@ namespace CMS.Backend.Controllers
                         await ImageFile.CopyToAsync(stream);
                     }
 
-                    // (Tuỳ chọn) Nếu bạn muốn tiết kiệm dung lượng, có thể viết code xóa file ảnh cũ ở đây bằng File.Delete()
-
                     // Cập nhật lại đường dẫn ảnh mới cho Product
                     product.ImageUrl = "/images/products/" + fileName;
                 }
-                // Nếu ImageFile == null, EF Core sẽ tự động giữ lại giá trị product.ImageUrl (ảnh cũ) 
-                // nhờ thẻ <input type="hidden" asp-for="ImageUrl" /> mà bạn đã đặt ở View.
 
+                // Cập nhật vào DB
                 _context.Products.Update(product);
-                await _context.SaveChangesAsync(); // Dùng SaveChangesAsync cho đồng bộ
+                await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
 
-            // Load lại danh sách danh mục nếu nhập lỗi
+            // Load lại danh mục nếu Form có lỗi khác
             ViewBag.CategoryList = new SelectList(_context.CategoryProducts, "Id", "Name", product.CategoryProductId);
             return View(product);
         }

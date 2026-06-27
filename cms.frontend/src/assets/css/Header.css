@@ -253,3 +253,21 @@
         text-align: center;
     }
 }
+
+
+/* Đảm bảo ẩn menu trên điện thoại */
+.solis-collapse {
+    display: none;
+}
+
+    /* Class này được React thêm vào khi bấm nút */
+    .solis-collapse.show {
+        display: block;
+    }
+
+/* Trên màn hình lớn, luôn hiện menu */
+@media (min-width: 992px) {
+    .solis-collapse {
+        display: flex !important;
+    }
+}

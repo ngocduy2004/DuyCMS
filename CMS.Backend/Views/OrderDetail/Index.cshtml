@@ -1,11 +1,11 @@
 ﻿@model List<CMS.Data.Entities.OrderDetail>
 @{
-    ViewData["Title"] = "Chi tiết đơn hàng";
+    Layout = "_LayoutAdmin";
 }
 
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h3 class="text-dark font-weight-bold m-0 text-uppercase">BÀI TẬP 7: LIỆT KÊ DANH SÁCH ORDER DETAILS</h3>
+        <h3 class="text-dark font-weight-bold m-0 text-uppercase">LIỆT KÊ DANH SÁCH ORDER DETAILS</h3>
         <span class="badge bg-secondary p-2">Dữ liệu hệ thống</span>
     </div>
 
@@ -14,34 +14,61 @@
             <tr>
                 <th style="width: 80px;" class="text-center">ID</th>
                 <th class="text-center" style="width: 150px;">Mã Đơn Hàng</th>
-                <th class="text-center" style="width: 150px;">Mã Sản Phẩm</th>
+                <th>Sản Phẩm</th>
                 <th class="text-center" style="width: 120px;">Số Lượng</th>
-                <th class="text-end" style="width: 200px;">Đơn Giá</th>
-                <th class="text-end" style="width: 200px;">Thành Tiền</th>
+                <th class="text-end" style="width: 180px;">Đơn Giá</th>
+                <th class="text-end" style="width: 180px;">Thành Tiền</th>
             </tr>
         </thead>
         <tbody>
             @if (Model != null && Model.Any())
             {
-                foreach (var item in Model)
-                {
-                    // Tính toán thành tiền trực tiếp trên giao diện
-                    var totalRow = item.Quantity * item.UnitPrice;
+                // 1. NHÓM CÁC CHI TIẾT ĐƠN HÀNG LẠI THEO MÃ ĐƠN HÀNG (OrderId)
+                var groupedDetails = Model.GroupBy(x => x.OrderId).ToList();
 
-                    <tr>
-                        <td class="text-center font-weight-bold text-secondary">@item.Id</td>
-                        <td class="text-center font-weight-bold text-primary">#DH00@item.OrderId</td>
-                        <td class="text-center font-weight-bold text-success">#SP00@item.ProductId</td>
-                        <td class="text-center font-weight-bold">@item.Quantity</td>
-                        <td class="text-end text-muted">@item.UnitPrice.ToString("N0") đ</td>
-                        <td class="text-end text-danger font-weight-bold">@totalRow.ToString("N0") đ</td>
-                    </tr>
+                foreach (var group in groupedDetails)
+                {
+                    // Lấy số lượng sản phẩm trong đơn hàng này để gộp dòng (rowspan)
+                    int rowSpan = group.Count();
+                    bool isFirstRowOfOrder = true;
+
+                    foreach (var item in group)
+                    {
+                        var totalRow = item.Quantity * item.UnitPrice;
+
+                        <tr>
+                            <td class="text-center font-weight-bold text-secondary">@item.Id</td>
+
+                            @* 2. CHỈ IN CỘT MÃ ĐƠN HÀNG Ở DÒNG ĐẦU TIÊN CỦA NHÓM, VÀ GỘP CÁC DÒNG XUỐNG DƯỚI *@
+                            @if (isFirstRowOfOrder)
+                            {
+                                <td class="text-center align-middle" rowspan="@rowSpan" style="background-color: #f8f9fa;">
+                                    <a href="/Order/Index" class="text-decoration-none text-primary fw-bold fs-5 d-block">#@item.OrderId</a>
+                                    <span class="badge bg-info mt-2">@rowSpan sản phẩm</span>
+                                </td>
+                            }
+
+                            <td>
+                                <strong class="text-success">@(item.Product?.Name ?? "Sản phẩm đã bị xóa")</strong>
+                                <br />
+                                <small class="text-muted">Mã SP: #@item.ProductId</small>
+                            </td>
+
+                            <td class="text-center font-weight-bold">@item.Quantity</td>
+                            <td class="text-end text-muted">@item.UnitPrice.ToString("N0") đ</td>
+                            <td class="text-end text-danger font-weight-bold">@totalRow.ToString("N0") đ</td>
+                        </tr>
+
+                        // Đánh dấu đã in xong dòng đầu tiên
+                        isFirstRowOfOrder = false;
+                    }
                 }
             }
             else
             {
                 <tr>
-                    <td colspan="6" class="text-center text-muted py-3">
+                    <td colspan="6" class="text-center text-muted py-4">
+                        <i class="fa-solid fa-box-open fs-3 d-block mb-2"></i>
                         Chưa có dữ liệu chi tiết đơn hàng nào. Hãy nạp thêm trong SQL Server!
                     </td>
                 </tr>

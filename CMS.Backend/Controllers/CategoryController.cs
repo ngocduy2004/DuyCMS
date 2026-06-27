@@ -6,9 +6,9 @@ using Microsoft.AspNetCore.Authorization; // Cần thêm namespace này
 
 namespace CMS.Backend.Controllers
 {
-    
 
-    [Authorize] // Bắt buộc phải đăng nhập mới được vào các hàm bên dưới
+
+    [Authorize(AuthenticationSchemes = "AdminScheme")] // Bắt buộc phải đăng nhập mới được vào các hàm bên dưới
     public class CategoryController : Controller
     {
         private readonly ApplicationDbContext _context;

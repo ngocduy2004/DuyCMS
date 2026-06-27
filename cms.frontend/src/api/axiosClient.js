@@ -17,6 +17,12 @@ axiosClient.interceptors.response.use(
         return response.data;
     },
     (error) => {
+
+        // 💡 XỬ LÝ ÊM ÁI LỖI 401 NGAY TẠI CỔNG BẢO VỆ
+        if (error.response && error.response.status === 401) {
+            // Cứ âm thầm ném lỗi đi tiếp để customerService bắt lấy, KHÔNG in ra console nữa
+            return Promise.reject(error);
+        }
         // Xử lý lỗi tập trung tại đây (Ví dụ: Server sập, lỗi 404, lỗi 500)
         console.error('Lỗi kết nối API:', error.message);
         return Promise.reject(error);

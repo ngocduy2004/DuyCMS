@@ -1,8 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using CMS.Data;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using CMS.Data;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,6 +9,8 @@ using System.Threading.Tasks;
 public class AccountController : Controller
 {
     private readonly ApplicationDbContext _context;
+    // Khai báo tên scheme trùng khớp với Program.cs
+    private const string AdminScheme = "AdminScheme";
 
     public AccountController(ApplicationDbContext context)
     {
@@ -34,27 +35,23 @@ public class AccountController : Controller
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, user.Username),
-                new Claim(ClaimTypes.Role, user.Role ?? "User"), // Lưu vai trò: Admin/Editor/User (Mặc định là User nếu null)
+                new Claim(ClaimTypes.Role, user.Role ?? "User"),
                 new Claim("FullName", user.FullName ?? username)
             };
 
-            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            // ✅ Sửa: Dùng "AdminScheme" thay vì CookieAuthenticationDefaults.AuthenticationScheme
+            var claimsIdentity = new ClaimsIdentity(claims, AdminScheme);
 
-            // 3. Đăng nhập và lưu Cookie vào trình duyệt
-            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
-                new ClaimsPrincipal(claimsIdentity));
+            // 3. Đăng nhập với AdminScheme
+            await HttpContext.SignInAsync(AdminScheme, new ClaimsPrincipal(claimsIdentity));
 
-            // ====================================================
-            // 4. KIỂM TRA VAI TRÒ VÀ ĐIỀU HƯỚNG (PHÂN QUYỀN)
-            // ====================================================
+            // 4. Điều hướng
             if (user.Role == "Admin" || user.Role == "Editor")
             {
-                // Nếu là Quản trị viên, đá thẳng vào trang Quản lý Sản phẩm (hoặc Dashboard)
                 return RedirectToAction("Index", "Product");
             }
             else
             {
-                // Nếu là Khách hàng bình thường, cho ra trang chủ Home
                 return RedirectToAction("Index", "Home");
             }
         }
@@ -66,8 +63,8 @@ public class AccountController : Controller
     // Hàm đăng xuất
     public async Task<IActionResult> Logout()
     {
-        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-        // Sau khi đăng xuất thành công thì quay lại trang Login
+        // ✅ Sửa: Logout đúng AdminScheme
+        await HttpContext.SignOutAsync(AdminScheme);
         return RedirectToAction("Login");
     }
 

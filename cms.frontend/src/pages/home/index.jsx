@@ -1,6 +1,6 @@
 ﻿// src/pages/home/index.jsx
 import React, { useState } from 'react';
-import HeroBanner from './Banner';
+import HeroBanner from './HeroBanner';
 import CategoryMenu from './CategoryMenu';
 import ProductGrid from './ProductGrid';
 import LatestBlog from './LatestBlog';

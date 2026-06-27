@@ -1,0 +1,74 @@
+﻿@model CMS.Data.Entities.Banner
+
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    ViewData["Title"] = "Sửa Banner";
+}
+
+<div class="card shadow border-0 mt-4">
+    <div class="card-header bg-warning text-dark">
+        <h4 class="mb-0">Chỉnh sửa Banner</h4>
+    </div>
+    <div class="card-body">
+        <form asp-action="Edit" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="ImageUrl" />
+
+            <div class="row">
+                <div class="col-md-4 mb-4 text-center">
+                    <label class="form-label fw-bold">Ảnh hiện tại</label>
+                    <div class="border rounded p-2 bg-light">
+                        @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                        {
+                            <img src="@Model.ImageUrl" alt="Current Image" class="img-fluid rounded" style="max-height: 200px; object-fit: contain;" />
+                        }
+                        else
+                        {
+                            <div class="text-muted py-5">Không có ảnh</div>
+                        }
+                    </div>
+                </div>
+
+                <div class="col-md-8">
+                    <div class="mb-3">
+                        <label asp-for="Title" class="form-label fw-bold">Tiêu đề Banner <span class="text-danger">*</span></label>
+                        <input asp-for="Title" class="form-control" />
+                        <span asp-validation-for="Title" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Đổi ảnh khác (Bỏ trống nếu muốn giữ ảnh cũ)</label>
+                        <input type="file" name="ImageFile" class="form-control" accept="image/*" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="TargetUrl" class="form-label fw-bold">Link khi click vào ảnh</label>
+                        <input asp-for="TargetUrl" class="form-control" />
+                        <span asp-validation-for="TargetUrl" class="text-danger"></span>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label asp-for="SortOrder" class="form-label fw-bold">Thứ tự hiển thị</label>
+                            <input asp-for="SortOrder" class="form-control" type="number" />
+                            <span asp-validation-for="SortOrder" class="text-danger"></span>
+                        </div>
+                        <div class="col-6 mb-3 d-flex align-items-end">
+                            <div class="form-check mb-2">
+                                <input asp-for="IsActive" class="form-check-input" type="checkbox" />
+                                <label asp-for="IsActive" class="form-check-label fw-bold">Cho phép hiển thị</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4 border-top pt-3 text-end">
+                <a asp-action="Index" class="btn btn-secondary px-4 me-2">Hủy / Quay lại</a>
+                <button type="submit" class="btn btn-success px-4"><i class="fa-solid fa-check"></i> Cập nhật thay đổi</button>
+            </div>
+        </form>
+    </div>
+</div>

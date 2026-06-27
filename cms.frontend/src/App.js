@@ -14,8 +14,20 @@ import ProductDetail from './pages/product-detail';
 import Blog from './pages/blog/index';
 import BlogDetail from './pages/blog/BlogDetail';
 
+
+import Login from './pages/auth/Login';
+import Register from './pages/auth/Register';
+
 // BỔ SUNG: Import trang Shop vào đây!
 import Shop from './pages/shop/index';
+
+// BỔ SUNG: Import trang Profile vào đây!
+import Profile from './pages/profile/index';
+
+import Cart from './pages/cart/index';
+import Checkout from './pages/checkout/index';
+
+import OrderHistory from './pages/profile/OrderHistory';
 
 import './App.css';
 
@@ -25,7 +37,7 @@ const MainLayout = ({ children }) => (
         <Header />
         <main className="flex-grow-1">
             {children}
-        </main>2
+        </main>
         <Footer />
     </div>
 );
@@ -52,6 +64,22 @@ function App() {
                     <Route path="/blog" element={<Blog />} />
                     <Route path="/blog/:id" element={<BlogDetail />} />
                     {/* Sau này thêm các Route khác tại đây */}
+
+                      
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/register" element={<Register />} />
+
+                    {/* BỔ SUNG: Tuyến đường (Route) cho trang Profile */}
+                    <Route path="/profile" element={<Profile />} />
+
+                    {/* 🚨 BỔ SUNG VÀO ĐÂY: Tuyến đường cho Giỏ Hàng */}
+                    <Route path="/cart" element={<Cart />} />
+
+                    <Route path="/checkout" element={<Checkout />} />
+
+                    {/* 🚨 BỔ SUNG VÀO ĐÂY: Tuyến đường cho Lịch sử đơn hàng (Tạm thời để code rỗng nếu chưa làm) */}
+                    <Route path="/order-history" element={<OrderHistory />} />
+               
                 </Routes>
             </MainLayout>
         </Router>

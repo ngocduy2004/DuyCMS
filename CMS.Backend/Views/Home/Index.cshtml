@@ -1,15 +1,45 @@
 ﻿@model IEnumerable<CMS.Data.Entities.Post>
 
 <div class="container mt-5">
+
+    <div class="d-flex justify-content-end mb-4 border-bottom pb-3">
+        @if (User.Identity != null && User.Identity.IsAuthenticated)
+        {
+            <div class="d-flex align-items-center">
+                <span class="me-3 text-secondary">
+                    Xin chào, <strong class="text-dark">@User.Identity.Name</strong>!
+                </span>
+
+                @if (User.IsInRole("Admin") || User.IsInRole("Editor"))
+                {
+                    <a href="/Product/Index" class="btn btn-outline-secondary btn-sm me-2">
+                        Vào trang Quản trị
+                    </a>
+                }
+
+                <a href="/Account/Logout" class="btn btn-danger btn-sm">
+                    Đăng xuất
+                </a>
+            </div>
+        }
+        else
+        {
+            <div>
+                <a href="/Account/Login" class="btn btn-outline-primary btn-sm me-2">Đăng nhập</a>
+                <a href="/Account/Register" class="btn btn-primary btn-sm">Đăng ký</a>
+            </div>
+        }
+    </div>
     <h2 class="text-center mb-4 text-danger">TIN TỨC MỚI NHẤT</h2>
+
     <div class="row">
         @foreach (var item in Model)
         {
-            <div class="col-md-4">
+            <div class="col-md-4 mb-4">
                 <div class="card shadow-sm h-100">
-                    <img src="@item.ImageUrl" class="card-img-top" alt="Thumbnail">
+                    <img src="@item.ImageUrl" class="card-img-top" alt="Thumbnail" style="height: 200px; object-fit: cover;">
                     <div class="card-body">
-                        <span class="badge bg-primary mb-2">@item.Category.Name</span>
+                        <span class="badge bg-primary mb-2">@(item.Category?.Name ?? "Chưa phân loại")</span>
                         <h5 class="card-title">@item.Title</h5>
                         <p class="card-text text-truncate">@item.Content</p>
                         <a href="/Post/Details/@item.Id" class="btn btn-outline-danger btn-sm">Đọc tiếp</a>

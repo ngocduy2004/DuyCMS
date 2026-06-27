@@ -1,0 +1,55 @@
+﻿@model CMS.Data.Entities.Banner
+
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    ViewData["Title"] = "Thêm Banner";
+}
+
+<div class="card shadow border-0 mt-4">
+    <div class="card-header bg-primary text-white">
+        <h4 class="mb-0">Thêm Banner Mới</h4>
+    </div>
+    <div class="card-body">
+        <form asp-action="Create" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Title" class="form-label fw-bold">Tiêu đề Banner <span class="text-danger">*</span></label>
+                    <input asp-for="Title" class="form-control" placeholder="Nhập tiêu đề (vd: Sale mùa hè)" />
+                    <span asp-validation-for="Title" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">Chọn file ảnh <span class="text-danger">*</span></label>
+                    <input type="file" name="ImageFile" class="form-control" accept="image/*" required />
+                    <small class="text-muted">Nên chọn ảnh ngang kích thước (1920x800px) để hiển thị đẹp nhất.</small>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label asp-for="TargetUrl" class="form-label fw-bold">Link khi click vào ảnh</label>
+                    <input asp-for="TargetUrl" class="form-control" placeholder="vd: /shop?categoryId=1" />
+                    <span asp-validation-for="TargetUrl" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <label asp-for="SortOrder" class="form-label fw-bold">Thứ tự hiển thị</label>
+                    <input asp-for="SortOrder" class="form-control" type="number" min="0" />
+                    <span asp-validation-for="SortOrder" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-3 mb-3 d-flex align-items-end">
+                    <div class="form-check mb-2">
+                        <input asp-for="IsActive" class="form-check-input" type="checkbox" />
+                        <label asp-for="IsActive" class="form-check-label fw-bold">Hiển thị (Active)</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4 border-top pt-3">
+                <button type="submit" class="btn btn-primary px-4"><i class="fa-solid fa-save"></i> Lưu Banner</button>
+                <a asp-action="Index" class="btn btn-secondary px-4 ms-2">Hủy / Quay lại</a>
+            </div>
+        </form>
+    </div>
+</div>
