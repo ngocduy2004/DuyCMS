@@ -1,72 +1,69 @@
-﻿import React, { useState, useEffect } from 'react';
+﻿// src/pages/shop/Shop.jsx
+import React, { useState, useEffect } from 'react';
 import productService from '../../services/productService';
 import categoryProductService from '../../services/categoryProductService';
 import ShopSidebar from './ShopSidebar';
 import ShopHeader from './ShopHeader';
 import ProductList from './ProductList';
 import LoadingOrEmpty from './LoadingOrEmpty';
-
+import { useLocation } from 'react-router-dom';
 const Shop = () => {
     // 1. Quản lý State Dữ liệu
     const [products, setProducts] = useState([]);
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    // 2. Quản lý State Bộ Lọc (Filters)
+    // 2. Quản lý State Các Bộ Lọc
     const [selectedCategoryId, setSelectedCategoryId] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [priceRange, setPriceRange] = useState({ min: '', max: '' });
+    // 2. Lấy đối tượng location để đọc URL
+    const location = useLocation();
 
-    // 3. Fetch dữ liệu lần đầu tiên (Tải Danh mục & Sản phẩm)
+
+
+
+    // 3. THÊM USEEFFECT NÀY VÀO: Đọc từ khóa từ thanh địa chỉ (URL)
     useEffect(() => {
-        const fetchInitialData = async () => {
-            setLoading(true);
+        // Trích xuất tham số từ URL
+        const params = new URLSearchParams(location.search);
+        const keywordFromUrl = params.get('keyword');
+
+        if (keywordFromUrl) {
+            // Nếu trên URL có chữ ?keyword=... thì set vào biến tìm kiếm
+            setSearchQuery(keywordFromUrl);
+        } else {
+            // Nếu không có (người dùng bấm thẳng nút Cửa hàng) thì reset trống
+            setSearchQuery('');
+        }
+    }, [location.search]); // Chạy lại mỗi khi URL thay đổi
+
+    // 3. Tải danh mục 1 lần duy nhất khi mở trang
+    useEffect(() => {
+        const fetchCategories = async () => {
             try {
-                // Chạy song song 2 API để tối ưu tốc độ
-                const [categoriesData, productsData] = await Promise.all([
-                    categoryProductService.getAllCategoryProducts(),
-                    productService.getAllProducts()
-                ]);
+                const categoriesData = await categoryProductService.getAllCategoryProducts();
                 setCategories(categoriesData || []);
-                setProducts(productsData || []);
             } catch (error) {
-                console.error("Lỗi khi tải dữ liệu cửa hàng:", error);
-            } finally {
-                setLoading(false);
+                console.error("Lỗi khi tải danh mục:", error);
             }
         };
-        fetchInitialData();
+        fetchCategories();
     }, []);
 
-    // 4. Lọc lại dữ liệu (Mỗi khi thay đổi API category hoặc tìm kiếm/giá)
+    // 4. GỌI API TÌM KIẾM MỖI KHI BỘ LỌC THAY ĐỔI
     useEffect(() => {
         const fetchFilteredProducts = async () => {
             setLoading(true);
             try {
-                // Lọc theo danh mục qua API (nếu có chọn)
-                let currentProducts = selectedCategoryId
-                    ? await productService.getByCategory(selectedCategoryId)
-                    : await productService.getAllProducts();
-
-                // Lọc thêm bằng Javascript cho Từ khóa tìm kiếm (Realtime)
-                if (searchQuery) {
-                    currentProducts = currentProducts.filter(p =>
-                        p.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                        p.title?.toLowerCase().includes(searchQuery.toLowerCase())
-                    );
-                }
-
-                // Lọc thêm bằng Javascript cho Khoảng Giá
-                const min = parseFloat(priceRange.min);
-                const max = parseFloat(priceRange.max);
-                if (!isNaN(min)) {
-                    currentProducts = currentProducts.filter(p => p.price >= min);
-                }
-                if (!isNaN(max)) {
-                    currentProducts = currentProducts.filter(p => p.price <= max);
-                }
-
-                setProducts(currentProducts || []);
+                // Gọi ngầm API Search trên C#
+                const filteredData = await productService.searchProducts(
+                    selectedCategoryId,
+                    searchQuery,
+                    priceRange.min,
+                    priceRange.max
+                );
+                setProducts(filteredData || []);
             } catch (error) {
                 console.error("Lỗi khi lọc sản phẩm:", error);
             } finally {
@@ -74,16 +71,14 @@ const Shop = () => {
             }
         };
 
-        // Bỏ qua lần render đầu tiên vì đã có fetchInitialData
-        if (categories.length > 0) {
-            fetchFilteredProducts();
-        }
-    }, [selectedCategoryId, searchQuery, priceRange]);
+        fetchFilteredProducts();
+    }, [selectedCategoryId, searchQuery, priceRange]); // Mảng Dependency: Theo dõi 3 state này
 
     return (
-        <div className="container py-5" style={{ paddingBottom: '80px' }} >
+        <div className="container py-5" style={{ paddingBottom: '80px' }}>
             <div className="row">
-                {/* Cột trái: Sidebar (Bộ lọc) */}
+
+                {/* --- CỘT TRÁI: SIDEBAR (DANH MỤC & GIÁ) --- */}
                 <div className="col-12 col-md-3 mb-4 mb-md-0">
                     <ShopSidebar
                         categories={categories}
@@ -93,17 +88,18 @@ const Shop = () => {
                     />
                 </div>
 
-                {/* Cột phải: Không gian mua sắm */}
+                {/* --- CỘT PHẢI: TÌM KIẾM & LƯỚI SẢN PHẨM --- */}
                 <div className="col-12 col-md-9">
                     <ShopHeader
                         totalCount={products.length}
-                        onSearch={setSearchQuery}
+                        onSearch={setSearchQuery} // Cập nhật từ khóa
                     />
 
                     <LoadingOrEmpty isLoading={loading} isEmpty={products.length === 0}>
                         <ProductList products={products} />
                     </LoadingOrEmpty>
                 </div>
+
             </div>
         </div>
     );

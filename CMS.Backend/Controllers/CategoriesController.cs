@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using CMS.Data;
+﻿using CMS.Data;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 
 namespace CMS.Backend.Controllers
 {
+  
     [Route("api/[controller]")]
     [ApiController]
     public class CategoriesController : ControllerBase

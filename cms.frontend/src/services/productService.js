@@ -15,8 +15,24 @@ const productService = {
     // 3. Hàm xem chi tiết (nếu cần dùng sau này)
     getDetail: (id) => {
         return axiosClient.get(`/products/${id}`);
-    }
+    },
+    // 👇 THÊM HÀM NÀY VÀO 👇
+    // HÀM MỚI: Gọi API Search có truyền tham số bộ lọc
+    searchProducts: async (categoryId, keyword, minPrice, maxPrice) => {
+        try {
+            const params = {};
+            if (categoryId) params.categoryId = categoryId;
+            if (keyword) params.keyword = keyword;
+            if (minPrice) params.minPrice = minPrice;
+            if (maxPrice) params.maxPrice = maxPrice;
 
+            const response = await axiosClient.get('/Products/search', { params });
+            return response.data || response;
+        } catch (error) {
+            console.error("Lỗi khi tìm kiếm sản phẩm:", error);
+            throw error;
+        }
+    }
     
     
 };

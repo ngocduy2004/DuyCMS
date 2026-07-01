@@ -4,6 +4,8 @@ import HeroBanner from './HeroBanner';
 import CategoryMenu from './CategoryMenu';
 import ProductGrid from './ProductGrid';
 import LatestBlog from './LatestBlog';
+import LatestProducts from '../../components/LatestProducts';
+import BestSellingProducts from '../../components/BestSellingProducts';
 
 const Home = () => {
     const [selectedCategoryId, setSelectedCategoryId] = useState(null);
@@ -16,6 +18,8 @@ const Home = () => {
                     onCategorySelect={setSelectedCategoryId}
                     activeCategoryId={selectedCategoryId}
                 />
+                <BestSellingProducts />
+                <LatestProducts />
                 <ProductGrid categoryId={selectedCategoryId} />
                 <LatestBlog />
             </div>

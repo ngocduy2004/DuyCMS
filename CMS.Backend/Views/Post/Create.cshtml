@@ -67,14 +67,53 @@
     <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
 
     <script>
-        // 1. Kích hoạt trình soạn thảo giàu tính năng CKEditor
+        // 1. Khai báo Adapter để CKEditor biết cách gửi ảnh lên API của bạn
+        class MyUploadAdapter {
+            constructor(loader) {
+                this.loader = loader;
+            }
+
+            upload() {
+                return this.loader.file
+                    .then(file => new Promise((resolve, reject) => {
+                        const data = new FormData();
+                        data.append('upload', file); // Tên 'upload' phải khớp với IFormFile trong Controller
+
+                        // Gọi API UploadController mà chúng ta đã viết ở bước trước
+                        fetch('/api/upload/image', {
+                            method: 'POST',
+                            body: data
+                        })
+                        .then(response => response.json())
+                        .then(result => {
+                            // Trả về URL để CKEditor tự động chèn <img> vào bài viết
+                            resolve({ default: result.url });
+                        })
+                        .catch(error => {
+                            console.error("Lỗi upload ảnh trong CKEditor:", error);
+                            reject(error);
+                        });
+                    }));
+            }
+        }
+
+        // 2. Tạo Plugin gắn Adapter vào CKEditor
+        function MyCustomUploadAdapterPlugin(editor) {
+            editor.plugins.get('FileRepository').createUploadAdapter = (loader) => {
+                return new MyUploadAdapter(loader);
+            };
+        }
+
+        // 3. Kích hoạt trình soạn thảo và thêm Plugin cấu hình upload
         ClassicEditor
-            .create(document.querySelector('#Content'))
+            .create(document.querySelector('#Content'), {
+                extraPlugins: [MyCustomUploadAdapterPlugin] // Kích hoạt tính năng kéo thả/chèn ảnh
+            })
             .catch(error => {
-                console.error(error);
+                console.error("Lỗi khởi tạo CKEditor:", error);
             });
 
-        // 2. Hàm Javascript đọc file ảnh trực tiếp trên trình duyệt để hiển thị xem trước (Preview)
+        // 4. Hàm Javascript đọc file ảnh trực tiếp trên trình duyệt để hiển thị xem trước (Preview)
         function previewImage(event) {
             var reader = new FileReader();
             reader.onload = function() {

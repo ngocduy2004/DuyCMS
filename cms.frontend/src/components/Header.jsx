@@ -97,10 +97,19 @@ const Header = () => {
         }
     };
 
+    // Bổ sung hàm này ngay dưới hàm handleLogout 
+    const executeSearch = () => {
+        if (keyword.trim() !== '') {
+            navigate(`/shop?keyword=${encodeURIComponent(keyword.trim())}`);
+        } else {
+            navigate('/shop');
+        }
+    };
+
     const handleSearch = (e) => {
         if (e.key === 'Enter') {
             e.preventDefault();
-            navigate(keyword.trim() !== '' ? `/shop?keyword=${encodeURIComponent(keyword.trim())}` : '/shop');
+            executeSearch();
         }
     };
 
@@ -125,7 +134,12 @@ const Header = () => {
 
                     <div className="solis-actions">
                         <label className="solis-search">
-                            <i className="fa-solid fa-magnifying-glass"></i>
+                            {/* Thêm sự kiện onClick và đổi trỏ chuột thành pointer cho Icon kính lúp */}
+                            <i
+                                className="fa-solid fa-magnifying-glass"
+                                onClick={executeSearch}
+                                style={{ cursor: 'pointer' }}
+                            ></i>
                             <input
                                 type="search"
                                 placeholder="Tìm kính, gọng..."

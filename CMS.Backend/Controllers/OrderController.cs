@@ -1,11 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore; // Thêm thư viện này để dùng Include
-using CMS.Data;
+﻿using CMS.Data;
 using CMS.Data.Entities;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore; // Thêm thư viện này để dùng Include
 using System.Linq;
 
 namespace CMS.Backend.Controllers
 {
+    [Authorize(AuthenticationSchemes = "AdminScheme")]
     public class OrderController : Controller
     {
         private readonly ApplicationDbContext _context;

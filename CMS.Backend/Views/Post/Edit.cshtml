@@ -44,7 +44,7 @@
 
                 <div class="mb-4">
                     <label asp-for="Content" class="form-label fw-bold text-secondary">Nội dung chi tiết</label>
-                    <textarea asp-for="Content" class="form-control" rows="6" required></textarea>
+                    <textarea asp-for="Content" id="Content" class="form-control" rows="6"></textarea>
                     <span asp-validation-for="Content" class="text-danger small"></span>
                 </div>
 
@@ -67,4 +67,21 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+
+    <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
+    <script>
+        // asp-for="Content" tự động tạo ra id="Content" cho thẻ textarea
+        ClassicEditor
+            .create(document.querySelector('#Content'))
+            .catch(error => {
+                console.error(error);
+            });
+    </script>
+
+    <style>
+        /* CSS tùy chỉnh nhỏ giúp vùng soạn thảo của CKEditor cao hơn, dễ nhìn hơn */
+        .ck-editor__editable {
+            min-height: 300px;
+        }
+    </style>
 }

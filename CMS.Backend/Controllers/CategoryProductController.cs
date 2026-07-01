@@ -1,5 +1,6 @@
 ﻿using CMS.Data;
 using CMS.Data.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
@@ -7,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace CMS.Controllers
 {
+    [Authorize(AuthenticationSchemes = "AdminScheme")]
     public class CategoryProductController : Controller
     {
         private readonly ApplicationDbContext _context;

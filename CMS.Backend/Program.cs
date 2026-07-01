@@ -27,10 +27,21 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 // 1. Khai báo dịch vụ xác thực Cookie (Cấu hình thông minh cho cả React và Trình duyệt)
 // --- CẤU HÌNH XÁC THỰC TÁCH BIỆT ---
-builder.Services.AddAuthentication()
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = "AdminScheme";
+    options.DefaultChallengeScheme = "AdminScheme";
+})
+    .AddCookie("AdminScheme", options =>
+    {
+        options.Cookie.Name = "AdminAuthCookie";
+        options.Cookie.HttpOnly = true;
+        options.LoginPath = "/Account/Login";
+        options.AccessDeniedPath = "/Account/AccessDenied";
+    })
     .AddCookie("CustomerScheme", options =>
     {
-        options.Cookie.Name = "CustomerAuthCookie"; // Tên cookie riêng cho khách
+        options.Cookie.Name = "CustomerAuthCookie";
         options.Cookie.SameSite = SameSiteMode.None;
         options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
         options.Cookie.HttpOnly = true;
@@ -41,14 +52,7 @@ builder.Services.AddAuthentication()
             else context.Response.Redirect(context.RedirectUri);
             return Task.CompletedTask;
         };
-    })
-    .AddCookie("AdminScheme", options =>
-    {
-        options.Cookie.Name = "AdminAuthCookie"; // Tên cookie riêng cho admin
-        options.Cookie.HttpOnly = true;
-        options.LoginPath = "/Admin/Login";
     });
-
 // 1. Khai báo chính sách CORS
 builder.Services.AddCors(options => {
     options.AddPolicy("AllowAll", policy => {

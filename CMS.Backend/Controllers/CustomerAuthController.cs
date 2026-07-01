@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+// Nếu Visual Studio báo đỏ chữ BCrypt, nhớ cài gói BCrypt.Net-Next trong NuGet nhé
 
 namespace CMS.Backend.Controllers
 {
@@ -29,11 +30,15 @@ namespace CMS.Backend.Controllers
         [HttpPost("CustomerRegister")]
         public async Task<IActionResult> CustomerRegister([FromBody] Customer model)
         {
+            model.Email = model.Email.ToLower().Trim();
             if (string.IsNullOrWhiteSpace(model.FullName) || model.FullName.Trim().Length < 2)
                 return BadRequest(new { success = false, message = "Họ và tên không được để trống!" });
 
             if (await _context.Customers.AnyAsync(c => c.Email == model.Email))
                 return BadRequest(new { success = false, message = "Email này đã được đăng ký!" });
+
+            // ✅ SỬA Ở ĐÂY: Băm mật khẩu (Hash) trước khi lưu vào Database
+            model.Password = BCrypt.Net.BCrypt.HashPassword(model.Password);
 
             _context.Customers.Add(model);
             await _context.SaveChangesAsync();
@@ -43,11 +48,15 @@ namespace CMS.Backend.Controllers
         [HttpPost("CustomerLogin")]
         public async Task<IActionResult> CustomerLogin([FromBody] LoginDto login)
         {
+            // ✅ SỬA Ở ĐÂY: Bước 1 - Chỉ tìm khách hàng theo Email (không tìm gộp chung Password nữa)
             var customer = await _context.Customers
-                .FirstOrDefaultAsync(c => c.Email == login.Email && c.Password == login.Password);
+                .FirstOrDefaultAsync(c => c.Email == login.Email);
 
-            if (customer == null)
+            // ✅ SỬA Ở ĐÂY: Bước 2 - Dùng BCrypt để so sánh mật khẩu người dùng nhập vào với chuỗi băm trong DB
+            if (customer == null || !BCrypt.Net.BCrypt.Verify(login.Password, customer.Password))
+            {
                 return Unauthorized(new { success = false, message = "Email hoặc mật khẩu không đúng!" });
+            }
 
             // Ghi Cookie vào với Scheme: CustomerScheme
             await SignInCustomerAsync(customer);
@@ -108,8 +117,8 @@ namespace CMS.Backend.Controllers
     }
 
 
-// Các lớp hỗ trợ (DTOs)
-public class LoginDto
+    // Các lớp hỗ trợ (DTOs)
+    public class LoginDto
     {
         public string Email { get; set; } = "";
         public string Password { get; set; } = "";

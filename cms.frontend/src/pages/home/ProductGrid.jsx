@@ -6,9 +6,8 @@ const ProductGrid = ({ categoryId }) => {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    // 1. KHAI BÁO STATE PHÂN TRANG
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 8; // 8 sản phẩm / 1 trang
+    const itemsPerPage = 8;
 
     useEffect(() => {
         const fetchProducts = async () => {
@@ -18,7 +17,7 @@ const ProductGrid = ({ categoryId }) => {
                     ? await productService.getByCategory(categoryId)
                     : await productService.getAllProducts();
                 setProducts(data || []);
-                setCurrentPage(1); // Reset về trang 1 nếu đổi danh mục
+                setCurrentPage(1);
             } catch (error) {
                 console.error("Lỗi:", error);
             } finally {
@@ -28,43 +27,92 @@ const ProductGrid = ({ categoryId }) => {
         fetchProducts();
     }, [categoryId]);
 
-    if (loading) return <div className="text-center my-4">Đang tải sản phẩm...</div>;
+    if (loading) {
+        return (
+            <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '40vh' }}>
+                <div className="spinner-border text-info" style={{ width: '3rem', height: '3rem' }}></div>
+            </div>
+        );
+    }
 
-    // 2. TÍNH TOÁN CẮT MẢNG DỮ LIỆU CHO TRANG HIỆN TẠI
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     const currentProducts = products.slice(indexOfFirstItem, indexOfLastItem);
-
-    // Tính tổng số trang (Math.ceil để làm tròn lên)
     const totalPages = Math.ceil(products.length / itemsPerPage);
 
     const paginate = (pageNumber) => {
         setCurrentPage(pageNumber);
-        window.scrollTo({ top: 0, behavior: 'smooth' }); // Tự động cuộn lên khi chuyển trang
+        window.scrollTo({ top: 100, behavior: 'smooth' });
     };
 
     return (
-        <div className="container">
+        /* Đổi từ py-4 thành py-5 và thêm my-4 để tạo khoảng không gian "thở" rất rộng ở trên và dưới */
+        <div className="container py-5 my-4">
+            <style>{`
+                .custom-pagination .page-item .page-link {
+                    color: #555;
+                    border: none;
+                    margin: 0 4px;
+                    border-radius: 50%;
+                    width: 42px;
+                    height: 42px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-weight: 500;
+                    transition: all 0.3s ease;
+                    background-color: transparent;
+                }
+                .custom-pagination .page-item.active .page-link {
+                    background-color: #222;
+                    color: #fff;
+                    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+                }
+                .custom-pagination .page-item .page-link:hover:not(.active) {
+                    background-color: #f0f0f0;
+                    color: #222;
+                }
+                .custom-pagination .page-item.disabled .page-link {
+                    color: #ccc;
+                    background-color: transparent;
+                }
+            `}</style>
+
+            {/* THÊM TIÊU ĐỀ Ở ĐÂY */}
+            <div className="text-center mb-5 pb-2">
+                <h2 className="fw-bold text-uppercase" style={{ letterSpacing: '2px', color: '#222' }}>
+                    Sản phẩm nổi bật
+                </h2>
+                {/* Đường gạch chân trang trí (Màu cyan/info cho hợp với màu logo của bạn) */}
+                <div style={{ width: '60px', height: '3px', backgroundColor: '#00bcd4', margin: '12px auto 0' }}></div>
+            </div>
+
             {/* LƯỚI SẢN PHẨM */}
-            <div className="row g-3">
+            <div className="row g-4 px-2"> {/* Thêm px-2 để shadow của card 2 bên rìa không bị cắt */}
                 {products.length === 0 ? (
-                    <div className="col-12 text-center text-muted">Không có sản phẩm nào.</div>
+                    <div className="col-12 text-center py-5">
+                        <img src="https://placehold.co/100x100?text=Empty" alt="Trống" className="mb-3 rounded-circle opacity-25" />
+                        <h4 className="text-secondary fw-bold">Không có sản phẩm nào</h4>
+                        <p className="text-muted">Danh mục này hiện chưa có sản phẩm. Vui lòng quay lại sau!</p>
+                    </div>
                 ) : (
                     currentProducts.map((item) => (
-                        <div className="col-lg-3 col-md-4 col-sm-6 mb-4" key={item.id}>
-                            <ProductCard product={item} />
+                        <div className="col-lg-3 col-md-4 col-sm-6 d-flex align-items-stretch" key={item.id}>
+                            <div className="w-100 p-1"> {/* Thêm p-1 để thẻ có không gian bung tỏa bóng đổ (shadow) khi hover */}
+                                <ProductCard product={item} />
+                            </div>
                         </div>
                     ))
                 )}
             </div>
 
-            {/* 3. HIỂN THỊ THANH PHÂN TRANG */}
+            {/* HIỂN THỊ THANH PHÂN TRANG */}
             {totalPages > 1 && (
-                <nav aria-label="Page navigation" className="mt-4">
-                    <ul className="pagination justify-content-center">
+                <nav aria-label="Page navigation" className="mt-5 pt-4">
+                    <ul className="pagination custom-pagination justify-content-center">
                         <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
                             <button className="page-link" onClick={() => paginate(currentPage - 1)}>
-                                Trước
+                                <i className="fa-solid fa-chevron-left"></i>
                             </button>
                         </li>
 
@@ -78,7 +126,7 @@ const ProductGrid = ({ categoryId }) => {
 
                         <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
                             <button className="page-link" onClick={() => paginate(currentPage + 1)}>
-                                Sau
+                                <i className="fa-solid fa-chevron-right"></i>
                             </button>
                         </li>
                     </ul>

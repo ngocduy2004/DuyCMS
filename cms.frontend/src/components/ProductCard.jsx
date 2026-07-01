@@ -6,61 +6,72 @@ import styles from '../assets/css/ProductCard.module.css';
 
 const ProductCard = ({ product }) => {
     const [hovered, setHovered] = useState(false);
-    const navigate = useNavigate(); // 2. Khởi tạo hook điều hướng
+    const navigate = useNavigate();
 
+    // 1. Kiểm tra trạng thái tồn kho
+    const stockOfProduct = product.stockQuantity ?? product.stock ?? 999;
+    const isOutOfStock = stockOfProduct <= 0; // True nếu hết hàng
+
+    // 2. Tính % giảm giá
     const discountPercent = product.oldPrice
         ? Math.round((1 - product.price / product.oldPrice) * 100)
         : null;
 
+    // 3. Hàm xử lý Mua Ngay
     const handleBuyNow = (e) => {
         e.preventDefault();
 
-        // 1. Lấy dữ liệu giỏ hàng hiện tại
+        // 🚨 CHẶN NGAY: Nếu hết hàng thì không làm gì cả
+        if (isOutOfStock) return;
+
         const cart = JSON.parse(localStorage.getItem('myCart')) || [];
         const currentId = product.id || product.Id;
         const existingItem = cart.find(item => (item.productId || item.id) === currentId);
 
-        // 2. Xác định tồn kho (Dự phòng trường hợp backend trả về các tên khác nhau)
-        const stockOfProduct = product.stockQuantity ?? product.stock ?? 999;
-
         if (existingItem) {
-            // Nếu đã có trong giỏ, chỉ tăng số lượng nếu chưa vượt quá tồn kho
             if (existingItem.quantity < stockOfProduct) {
                 existingItem.quantity += 1;
             } else {
                 alert(`Sản phẩm này chỉ còn tối đa ${stockOfProduct} cái trong kho!`);
+                return;
             }
         } else {
-            // 🔥 ĐÂY LÀ CHỖ CẦN SỬA: Thêm 'stockQuantity' vào đây
             cart.push({
                 productId: currentId,
                 productName: product.name || product.Name,
                 price: product.price || product.Price,
                 imageUrl: product.imageUrl || product.ImageUrl,
                 quantity: 1,
-                stockQuantity: stockOfProduct // Cực kỳ quan trọng để hàm updateQuantity ở trang Cart không báo lỗi
+                stockQuantity: stockOfProduct
             });
         }
 
-        // 3. Lưu lại
         localStorage.setItem('myCart', JSON.stringify(cart));
         window.dispatchEvent(new Event('cartUpdated'));
 
-        // 4. Chuyển trang
         navigate('/cart');
     };
+
     return (
         <div
+            // 👉 Thêm style opacity để làm mờ thẻ nếu hết hàng
             className={styles.card}
+            style={{ opacity: isOutOfStock ? 0.65 : 1, transition: 'all 0.3s' }}
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
         >
-            {/* Sale Badge - top left */}
-            {discountPercent && (
+            {/* --- TEM NHÃN (BADGE) --- */}
+            {isOutOfStock ? (
+                // Nếu hết hàng -> Hiện Tem Hết Hàng (Đỏ)
+                <div className={styles.saleBadgeTop} style={{ backgroundColor: '#dc3545', letterSpacing: '1px' }}>
+                    TẠM HẾT HÀNG
+                </div>
+            ) : discountPercent ? (
+                // Nếu còn hàng & có giảm giá -> Hiện Tem Sale
                 <div className={styles.saleBadgeTop}>
                     Sale {discountPercent}%
                 </div>
-            )}
+            ) : null}
 
             {/* Brand Logo - top right */}
             <div className={styles.brandLogoTop}>
@@ -73,6 +84,8 @@ const ProductCard = ({ product }) => {
                     src={product.imageUrl ? `https://localhost:7020${product.imageUrl}` : "https://placehold.co/300x180"}
                     alt={product.name}
                     className={`${styles.productImage} ${hovered ? styles.productImageHover : ''}`}
+                    // 👉 Ảnh có thể được chuyển sang trắng đen (grayscale) nếu hết hàng
+                    style={{ filter: isOutOfStock ? 'grayscale(80%)' : 'none' }}
                 />
 
                 {/* Hover overlay icons */}
@@ -80,15 +93,17 @@ const ProductCard = ({ product }) => {
                     <div className={styles.hoverOverlay}>
                         <Link to={`/product/${product.id}`} className={styles.iconBtn} title="Xem chi tiết">🔍</Link>
 
-                        {/* Nút Mua ngay nằm trong overlay */}
-                        <button onClick={handleBuyNow} className={styles.iconBtn} title="Mua ngay">
-                            ⚡
-                        </button>
+                        {/* 👉 ẨN NÚT MUA NGAY NẾU HẾT HÀNG */}
+                        {!isOutOfStock && (
+                            <button onClick={handleBuyNow} className={styles.iconBtn} title="Mua ngay">
+                                ⚡
+                            </button>
+                        )}
                     </div>
                 )}
             </div>
 
-            {/* Product code - right aligned, small gray */}
+            {/* Product code */}
             <div className={styles.sku}>
                 {product.sku || product.code || ''}
             </div>
@@ -102,22 +117,26 @@ const ProductCard = ({ product }) => {
 
                 {/* Price Row */}
                 <div className={styles.priceRow}>
-                    <span className={styles.currentPrice}>
+                    <span className={styles.currentPrice} style={{ color: isOutOfStock ? '#6c757d' : '' }}>
                         {product.price.toLocaleString('vi-VN')}₫
                     </span>
-                    {product.oldPrice && (
+                    {product.oldPrice && !isOutOfStock && (
                         <span className={styles.oldPrice}>
                             {product.oldPrice.toLocaleString('vi-VN')}₫
                         </span>
                     )}
                 </div>
 
-                {/* Sale badge bottom */}
-                {discountPercent && (
+                {/* Dòng hiển thị nhỏ dưới cùng thay thế cho Sale Badge */}
+                {isOutOfStock ? (
+                    <div className="text-danger fw-bold mt-2" style={{ fontSize: '0.85rem' }}>
+                        <i className="fa-solid fa-phone me-1"></i> Liên hệ đặt trước
+                    </div>
+                ) : discountPercent ? (
                     <div className={styles.saleBadgeBottom}>
                         Sale {discountPercent}%
                     </div>
-                )}
+                ) : null}
             </div>
 
             {/* Bottom brand logo */}
