@@ -1,5 +1,7 @@
 ﻿// src/pages/product-detail/ProductInfo.jsx
 import React, { useState } from 'react';
+// 🚨 1. THÊM IMPORT HẰNG SỐ MÔI TRƯỜNG
+import { IMAGE_BASE_URL } from '../../api/axiosClient';
 
 // 🚨 Nhận thêm prop 'showToast' từ component cha truyền xuống
 const ProductInfo = ({ product, onAddToCart, showToast }) => {
@@ -33,7 +35,8 @@ const ProductInfo = ({ product, onAddToCart, showToast }) => {
             <div className="col-md-5 d-flex align-items-center justify-content-center mb-4 mb-md-0">
                 <div className="bg-light rounded-4 p-4 w-100 text-center position-relative">
                     <img
-                        src={`https://localhost:7020${product.imageUrl}`}
+                        // 🚨 2. SỬA CHUỖI HARDCODE THÀNH IMAGE_BASE_URL
+                        src={`${IMAGE_BASE_URL}${product.imageUrl}`}
                         alt={product.name}
                         className="img-fluid"
                         style={{ maxHeight: '450px', objectFit: 'contain', mixBlendMode: 'multiply' }}

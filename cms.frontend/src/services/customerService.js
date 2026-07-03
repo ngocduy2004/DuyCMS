@@ -41,9 +41,19 @@ const customerService = {
     },
     // 🚨 BỔ SUNG: Hàm Quên mật khẩu
     // POST: /api/CustomerAuth/forgot-password
+    // 1. Quên mật khẩu - Gửi mã OTP
     forgotPassword: (data) => {
-        // Lưu ý: data phải là object có dạng { email: '...' }
         return axiosClient.post('/CustomerAuth/forgot-password', data);
+    },
+
+    // 2. Xác thực OTP
+    verifyOtp: (data) => {
+        return axiosClient.post('/CustomerAuth/verify-otp', data);
+    },
+
+    // 3. Đặt lại mật khẩu mới
+    resetPassword: (data) => {
+        return axiosClient.post('/CustomerAuth/reset-password', data);
     },
     changePassword: (data) => {
         return axiosClient.put('/CustomerAuth/change-password', data);

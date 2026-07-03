@@ -1,7 +1,8 @@
 ﻿// src/pages/blog/BlogDetail.jsx
 import React, { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import axios from "axios";
+// 🚨 1. Bỏ import axios gốc, thay bằng axiosClient và IMAGE_BASE_URL của dự án
+import axiosClient, { IMAGE_BASE_URL } from "../../api/axiosClient";
 import '../../assets/css/blog.css';
 
 const BlogDetail = () => {
@@ -14,10 +15,9 @@ const BlogDetail = () => {
     useEffect(() => {
         const fetchPost = async () => {
             try {
-                const res = await axios.get(
-                    `https://localhost:7020/api/Posts/${id}`
-                );
-                setPost(res.data);
+                // 🚨 2. Gọi qua axiosClient, chỉ cần truyền đường dẫn tương đối
+                const res = await axiosClient.get(`/Posts/${id}`);
+                setPost(res); // Lưu ý: axiosClient đã bóc tách response.data ở Interceptor rồi nên không cần res.data nữa
             } catch (err) {
                 console.error("Lỗi khi tải chi tiết bài viết:", err);
             } finally {
@@ -74,8 +74,9 @@ const BlogDetail = () => {
                     {/* Ảnh bìa bài viết lớn */}
                     {post.imageUrl && (
                         <div className="position-relative">
+                            {/* 🚨 3. Gắn base URL hình ảnh lấy từ file .env */}
                             <img
-                                src={`https://localhost:7020${post.imageUrl}`}
+                                src={`${IMAGE_BASE_URL}${post.imageUrl}`}
                                 alt={post.title}
                                 className="w-100"
                                 style={{ height: "450px", objectFit: "cover" }}

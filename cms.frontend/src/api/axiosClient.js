@@ -1,9 +1,13 @@
 ﻿import axios from 'axios';
 
+// 1. LẤY BIẾN MÔI TRƯỜNG TỪ FILE .env
+// Sử dụng || để dự phòng (fallback) trong trường hợp file .env bị lỗi hoặc chưa load kịp
+const API_URL = process.env.REACT_APP_API_URL || 'https://localhost:7020/api';
+export const IMAGE_BASE_URL = process.env.REACT_APP_IMAGE_BASE_URL || 'https://localhost:7020';
 
 // Khởi tạo một thực thể axios với cấu hình base chung
 const axiosClient = axios.create({
-    baseURL: 'https://localhost:7020/api', // Đổi lại đúng cổng Port Backend của máy các em
+    baseURL: API_URL, // 🚨 Đã thay thế chuỗi hardcode bằng hằng số môi trường
     headers: {
         'Content-Type': 'application/json',
     },
@@ -18,7 +22,6 @@ axiosClient.interceptors.response.use(
         return response.data;
     },
     (error) => {
-
         // 💡 XỬ LÝ ÊM ÁI LỖI 401 NGAY TẠI CỔNG BẢO VỆ
         if (error.response && error.response.status === 401) {
             // Cứ âm thầm ném lỗi đi tiếp để customerService bắt lấy, KHÔNG in ra console nữa

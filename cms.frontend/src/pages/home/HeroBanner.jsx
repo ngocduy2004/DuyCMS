@@ -1,10 +1,13 @@
 ﻿import React, { useState, useEffect, useRef } from 'react';
 import bannerService from '../../services/bannerService';
+// 🚨 1. IMPORT IMAGE_BASE_URL TỪ AXIOSCLIENT
+import { IMAGE_BASE_URL } from '../../api/axiosClient';
 
 const HeroBanner = () => {
     const [banners, setBanners] = useState([]);
     const carouselRef = useRef(null);
-    const BACKEND_URL = 'https://localhost:7020';
+
+    // 🚨 (Đã xóa dòng const BACKEND_URL = 'https://localhost:7020'; ở đây)
 
     useEffect(() => {
         bannerService.getActiveBanners().then(data => {
@@ -90,7 +93,8 @@ const HeroBanner = () => {
                         <div key={banner.id} className={`carousel-item ${index === 0 ? "active" : ""}`}>
                             <a href={banner.targetUrl || "#"} target={banner.targetUrl ? "_blank" : "_self"} rel="noreferrer">
                                 <img
-                                    src={`${BACKEND_URL}${banner.imageUrl}`}
+                                    // 🚨 2. SỬ DỤNG IMAGE_BASE_URL ĐỂ NỐI CHUỖI 
+                                    src={`${IMAGE_BASE_URL}${banner.imageUrl}`}
                                     className="d-block w-100"
                                     alt={banner.title}
                                     style={{ maxHeight: '550px', objectFit: 'cover' }}

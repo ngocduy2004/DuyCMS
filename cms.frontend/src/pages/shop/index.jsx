@@ -7,7 +7,11 @@ import ShopHeader from './ShopHeader';
 import ProductList from './ProductList';
 import LoadingOrEmpty from './LoadingOrEmpty';
 import { useLocation } from 'react-router-dom';
+
 const Shop = () => {
+    // Đưa location lên trên cùng để có thể dùng ngay lúc khởi tạo State
+    const location = useLocation();
+
     // 1. Quản lý State Dữ liệu
     const [products, setProducts] = useState([]);
     const [categories, setCategories] = useState([]);
@@ -15,30 +19,22 @@ const Shop = () => {
 
     // 2. Quản lý State Các Bộ Lọc
     const [selectedCategoryId, setSelectedCategoryId] = useState(null);
-    const [searchQuery, setSearchQuery] = useState('');
     const [priceRange, setPriceRange] = useState({ min: '', max: '' });
-    // 2. Lấy đối tượng location để đọc URL
-    const location = useLocation();
 
-
-
-
-    // 3. THÊM USEEFFECT NÀY VÀO: Đọc từ khóa từ thanh địa chỉ (URL)
-    useEffect(() => {
-        // Trích xuất tham số từ URL
+    // SỬA QUAN TRỌNG 1: Khởi tạo searchQuery bằng giá trị trên URL ngay từ đầu
+    const [searchQuery, setSearchQuery] = useState(() => {
         const params = new URLSearchParams(location.search);
-        const keywordFromUrl = params.get('keyword');
+        return params.get('keyword') || '';
+    });
 
-        if (keywordFromUrl) {
-            // Nếu trên URL có chữ ?keyword=... thì set vào biến tìm kiếm
-            setSearchQuery(keywordFromUrl);
-        } else {
-            // Nếu không có (người dùng bấm thẳng nút Cửa hàng) thì reset trống
-            setSearchQuery('');
-        }
-    }, [location.search]); // Chạy lại mỗi khi URL thay đổi
+    // 3. Đọc từ khóa từ thanh địa chỉ (URL) nếu URL thay đổi
+    useEffect(() => {
+        const params = new URLSearchParams(location.search);
+        const keywordFromUrl = params.get('keyword') || '';
+        setSearchQuery(keywordFromUrl);
+    }, [location.search]);
 
-    // 3. Tải danh mục 1 lần duy nhất khi mở trang
+    // 4. Tải danh mục 1 lần duy nhất khi mở trang
     useEffect(() => {
         const fetchCategories = async () => {
             try {
@@ -51,33 +47,45 @@ const Shop = () => {
         fetchCategories();
     }, []);
 
-    // 4. GỌI API TÌM KIẾM MỖI KHI BỘ LỌC THAY ĐỔI
+    // 5. GỌI API TÌM KIẾM MỖI KHI BỘ LỌC THAY ĐỔI
     useEffect(() => {
+        // SỬA QUAN TRỌNG 2: Dùng cờ ignore để chống lỗi Race Condition (API gọi trước nhưng trả về sau)
+        let ignore = false;
+
         const fetchFilteredProducts = async () => {
             setLoading(true);
             try {
-                // Gọi ngầm API Search trên C#
                 const filteredData = await productService.searchProducts(
                     selectedCategoryId,
                     searchQuery,
                     priceRange.min,
                     priceRange.max
                 );
-                setProducts(filteredData || []);
+
+                // Chỉ cập nhật kết quả nếu request này chưa bị hủy
+                if (!ignore) {
+                    setProducts(filteredData || []);
+                }
             } catch (error) {
                 console.error("Lỗi khi lọc sản phẩm:", error);
             } finally {
-                setLoading(false);
+                if (!ignore) {
+                    setLoading(false);
+                }
             }
         };
 
         fetchFilteredProducts();
-    }, [selectedCategoryId, searchQuery, priceRange]); // Mảng Dependency: Theo dõi 3 state này
+
+        // Cleanup: Hủy nhận kết quả của API cũ nếu người dùng gõ từ khóa mới
+        return () => {
+            ignore = true;
+        };
+    }, [selectedCategoryId, searchQuery, priceRange]);
 
     return (
         <div className="container py-5" style={{ paddingBottom: '80px' }}>
             <div className="row">
-
                 {/* --- CỘT TRÁI: SIDEBAR (DANH MỤC & GIÁ) --- */}
                 <div className="col-12 col-md-3 mb-4 mb-md-0">
                     <ShopSidebar
@@ -92,14 +100,14 @@ const Shop = () => {
                 <div className="col-12 col-md-9">
                     <ShopHeader
                         totalCount={products.length}
-                        onSearch={setSearchQuery} // Cập nhật từ khóa
+                        searchQuery={searchQuery} // SỬA QUAN TRỌNG 3: Truyền state xuống Header
+                        onSearch={setSearchQuery}
                     />
 
                     <LoadingOrEmpty isLoading={loading} isEmpty={products.length === 0}>
                         <ProductList products={products} />
                     </LoadingOrEmpty>
                 </div>
-
             </div>
         </div>
     );

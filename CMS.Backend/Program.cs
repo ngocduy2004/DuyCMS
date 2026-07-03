@@ -25,6 +25,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 //    });
 
 
+builder.Services.AddMemoryCache(); // 🚨 Thêm dòng này để hỗ trợ lưu OTP tạm thời
+
 // 1. Khai báo dịch vụ xác thực Cookie (Cấu hình thông minh cho cả React và Trình duyệt)
 // --- CẤU HÌNH XÁC THỰC TÁCH BIỆT ---
 builder.Services.AddAuthentication(options =>

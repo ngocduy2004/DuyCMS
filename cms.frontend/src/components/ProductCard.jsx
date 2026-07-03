@@ -1,6 +1,8 @@
 ﻿// src/components/ProductCard.jsx
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+// 🚨 1. IMPORT HẰNG SỐ MÔI TRƯỜNG TỪ AXIOSCLIENT
+import { IMAGE_BASE_URL } from '../api/axiosClient';
 
 import styles from '../assets/css/ProductCard.module.css';
 
@@ -21,7 +23,7 @@ const ProductCard = ({ product }) => {
     const handleBuyNow = (e) => {
         e.preventDefault();
 
-        // 🚨 CHẶN NGAY: Nếu hết hàng thì không làm gì cả
+        // CHẶN NGAY: Nếu hết hàng thì không làm gì cả
         if (isOutOfStock) return;
 
         const cart = JSON.parse(localStorage.getItem('myCart')) || [];
@@ -81,7 +83,8 @@ const ProductCard = ({ product }) => {
             {/* Image Container */}
             <div className={styles.imageContainer}>
                 <img
-                    src={product.imageUrl ? `https://localhost:7020${product.imageUrl}` : "https://placehold.co/300x180"}
+                    // 🚨 2. GẮN BIẾN IMAGE_BASE_URL ĐỂ NỐI CHUỖI HIỂN THỊ HÌNH ẢNH
+                    src={product.imageUrl ? `${IMAGE_BASE_URL}${product.imageUrl}` : "https://placehold.co/300x180"}
                     alt={product.name}
                     className={`${styles.productImage} ${hovered ? styles.productImageHover : ''}`}
                     // 👉 Ảnh có thể được chuyển sang trắng đen (grayscale) nếu hết hàng

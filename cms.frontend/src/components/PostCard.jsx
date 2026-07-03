@@ -60,8 +60,7 @@ const PostCard = ({ post }) => {
                     WebkitBoxOrient: 'vertical',
                     overflow: 'hidden'
                 }}>
-                    {/* GỌI ĐÚNG TRƯỜNG content (chữ c viết thường) TỪ API */}
-                    {post?.content || post?.Content || 'Đang cập nhật nội dung...'}
+                   
                 </p>
             </div>
         </div>
