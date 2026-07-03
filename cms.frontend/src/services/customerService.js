@@ -38,7 +38,17 @@ const customerService = {
     // 🚨 BẮT BUỘC PHẢI CÓ HÀM NÀY ĐỂ HEADER GỌI ĐĂNG XUẤT
     logout: () => {
         return axiosClient.post('/CustomerAuth/logout');
-    }
+    },
+    // 🚨 BỔ SUNG: Hàm Quên mật khẩu
+    // POST: /api/CustomerAuth/forgot-password
+    forgotPassword: (data) => {
+        // Lưu ý: data phải là object có dạng { email: '...' }
+        return axiosClient.post('/CustomerAuth/forgot-password', data);
+    },
+    changePassword: (data) => {
+        return axiosClient.put('/CustomerAuth/change-password', data);
+    },
+
 };
 
 export default customerService;

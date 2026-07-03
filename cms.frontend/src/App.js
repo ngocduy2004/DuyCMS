@@ -17,6 +17,7 @@ import BlogDetail from './pages/blog/BlogDetail';
 
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
+import ForgotPassword from './pages/auth/ForgotPassword';
 
 // BỔ SUNG: Import trang Shop vào đây!
 import Shop from './pages/shop/index';
@@ -67,6 +68,7 @@ function App() {
 
                       
                     <Route path="/login" element={<Login />} />
+                    <Route path="/forgot-password" element={<ForgotPassword />} />
                     <Route path="/register" element={<Register />} />
 
                     {/* BỔ SUNG: Tuyến đường (Route) cho trang Profile */}

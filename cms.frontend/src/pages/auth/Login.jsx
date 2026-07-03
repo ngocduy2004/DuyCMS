@@ -90,6 +90,13 @@ const Login = () => {
                             />
                         </div>
 
+                        {/* BỔ SUNG LINK QUÊN MẬT KHẨU TẠI ĐÂY */}
+                        <div className="text-end mb-4">
+                            <Link to="/forgot-password" className="text-decoration-none small" style={{ color: '#D9643A' }}>
+                                Quên mật khẩu?
+                            </Link>
+                        </div>
+
                         <button
                             type="submit"
                             className="btn w-100 font-weight-bold text-white rounded-pill py-2 mb-3"

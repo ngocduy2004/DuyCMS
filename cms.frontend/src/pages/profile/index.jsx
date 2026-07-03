@@ -1,6 +1,7 @@
 ﻿import React, { useState } from 'react';
 import ProfileInfo from './ProfileInfo';
 import OrderHistory from './OrderHistory'; // 1. Bỏ comment import
+import ChangePassword from './ChangePassword'; // 2. Bỏ comment import
 
 const ProfileIndex = () => {
     // State để quản lý xem người dùng đang bấm vào tab nào
@@ -29,16 +30,22 @@ const ProfileIndex = () => {
                         >
                             <i className="fa-solid fa-box me-2"></i> Lịch sử đơn hàng
                         </button>
+
+                        {/* 🚨 THÊM NÚT ĐỔI MẬT KHẨU */}
+                        <button className={`list-group-item list-group-item-action py-3 ${activeTab === 'password' ? 'active' : ''}`} onClick={() => setActiveTab('password')} style={activeTab === 'password' ? { backgroundColor: '#D9643A', borderColor: '#D9643A', color: 'white' } : {}}>
+                            <i className="fa-solid fa-lock me-2"></i> Đổi mật khẩu
+                        </button>
                     </div>
                 </div>
 
                 {/* Nội dung bên phải */}
                 <div className="col-md-9">
-                    {/* 2. Hiển thị component tương ứng dựa trên activeTab */}
                     {activeTab === 'info' ? (
                         <ProfileInfo />
-                    ) : (
+                    ) : activeTab === 'orders' ? (
                         <OrderHistory />
+                    ) : (
+                        <ChangePassword />
                     )}
                 </div>
             </div>

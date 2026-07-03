@@ -1,12 +1,12 @@
-﻿using CMS.Data;
+﻿// src/Controllers/OrdersController.cs
+using CMS.Data;
 using CMS.Data.Entities;
+using CMS.Backend.Services; // 🚨 ĐÃ BỔ SUNG: Để gọi được lớp EmailService
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
-using System.Net;
-using System.Net.Mail;
 using System.Threading.Tasks;
 
 namespace CMS.Backend.Controllers
@@ -16,9 +16,15 @@ namespace CMS.Backend.Controllers
     public class OrdersController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly EmailService _emailService; // 🚨 ĐÃ BỔ SUNG: Khai báo Service gửi Email chung
         private const string CustomerScheme = "CustomerScheme";
 
-        public OrdersController(ApplicationDbContext context) => _context = context;
+        // Khởi tạo constructor đồng bộ giống như bên Admin OrderController của bạn
+        public OrdersController(ApplicationDbContext context)
+        {
+            _context = context;
+            _emailService = new EmailService(); // Khởi tạo instance cho EmailService
+        }
 
         [HttpGet]
         [Authorize(AuthenticationSchemes = "AdminScheme")]
@@ -86,7 +92,7 @@ namespace CMS.Backend.Controllers
                 _context.Orders.Add(newOrder);
                 await _context.SaveChangesAsync();
 
-                decimal totalAmount = 0; // Biến tính tổng tiền gửi Email
+                decimal totalAmount = 0; // Tính tổng tiền đơn hàng
 
                 foreach (var item in request.CartItems)
                 {
@@ -113,14 +119,14 @@ namespace CMS.Backend.Controllers
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
-                // ==========================================
-                // 📧 BẮT ĐẦU GỬI EMAIL SAU KHI LƯU DB THÀNH CÔNG
-                // ==========================================
+                // ====================================================================
+                // 📧 ĐÃ SỬA ĐỔI: GỬI EMAIL THÔNG QUA EMAILSERVICE (CHẠY ĐỒNG BỘ THREAD NGẦM)
+                // ====================================================================
                 var customer = await _context.Customers.FindAsync(currentCustomerId);
                 if (customer != null && !string.IsNullOrEmpty(customer.Email))
                 {
-                    // Chạy ngầm việc gửi email để không làm chậm màn hình React của khách hàng
-                    _ = Task.Run(() => SendOrderConfirmationEmail(customer, newOrder, request, totalAmount));
+                    // Chạy thread ngầm để trả phản hồi 201 ngay lập tức lên màn hình ReactJS, không bắt khách hàng chờ đợi
+                    _ = Task.Run(() => BuildAndSendCheckoutEmail(customer, newOrder, request, totalAmount));
                 }
 
                 return StatusCode(201, new { message = "Đặt hàng thành công! Đã gửi email xác nhận.", orderId = newOrder.Id });
@@ -132,58 +138,60 @@ namespace CMS.Backend.Controllers
             }
         }
 
-        // ==========================================
-        // 🛠️ HÀM HỖ TRỢ GỬI EMAIL
-        // ==========================================
-        private async Task SendOrderConfirmationEmail(Customer customer, Order order, CheckoutRequest request, decimal totalAmount)
+        // ====================================================================
+        // 🛠️ HÀM HỖ TRỢ XÂY DỰNG GIAO DIỆN VÀ ĐẨY QUA EMAILSERVICE GỬI ĐI
+        // ====================================================================
+        private async Task BuildAndSendCheckoutEmail(Customer customer, Order order, CheckoutRequest request, decimal totalAmount)
         {
             try
             {
-                // 🚨 BẠN HÃY THAY ĐỔI THÔNG TIN CỦA BẠN VÀO ĐÂY 🚨
-                string fromEmail = "ngocduy6379@gmail.com";
-                string appPassword = "pxwa gjqk yyiv wdfm";
+                // 🚨 Thuật toán phòng vệ chặn lỗi cắt chuỗi (Split) khi test Postman dữ liệu tùy ý
+                string deliveryNote = "Không có ghi chú đặc biệt";
+                string phoneReceive = "Chưa cung cấp";
 
-                var smtpClient = new SmtpClient("smtp.gmail.com")
+                if (!string.IsNullOrEmpty(request.Notes) && request.Notes.Contains("|"))
                 {
-                    Port = 587,
-                    Credentials = new NetworkCredential(fromEmail, appPassword),
-                    EnableSsl = true,
-                };
+                    var parts = request.Notes.Split('|');
+                    if (parts.Length > 0) deliveryNote = parts[0].Replace("Ghi chú: ", "").Trim();
+                    if (parts.Length > 2) phoneReceive = parts[2].Replace("SĐT: ", "").Trim();
+                }
+                else if (!string.IsNullOrEmpty(request.Notes))
+                {
+                    deliveryNote = request.Notes;
+                }
 
-                // Thiết kế nội dung Email (Dùng HTML cho đẹp)
-                string body = $@"
-                    <div style='font-family: Arial, sans-serif; padding: 20px; color: #333;'>
-                        <h2 style='color: #D9643A;'>Solis Eyewear - Xác nhận đơn hàng #{order.Id}</h2>
+                string subject = $"[Solis Eyewear] Xác nhận đơn hàng thành công - #{order.Id}";
+
+                // Thiết kế khung HTML nội dung bài viết gửi cho khách hàng
+                string htmlContent = $@"
+                    <div style='font-family: Arial, sans-serif; padding: 20px; color: #333; max-width: 600px; border: 1px solid #eee; border-radius: 10px;'>
+                        <h2 style='color: #D9643A; border-bottom: 1px solid #eee; padding-bottom: 10px;'>Solis Eyewear - Đặt hàng thành công</h2>
                         <p>Xin chào <strong>{customer.FullName}</strong>,</p>
-                        <p>Cảm ơn bạn đã đặt hàng tại Solis Eyewear. Dưới đây là thông tin đơn hàng của bạn:</p>
+                        <p>Cảm ơn bạn đã đặt hàng tại Solis Eyewear. Đơn hàng của bạn đã được tiếp nhận thành công trên hệ thống ngầm.</p>
                         
-                        <div style='background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;'>
-                            <p><strong>Ngày đặt:</strong> {order.OrderDate.ToString("dd/MM/yyyy HH:mm")}</p>
-                            <p><strong>Số điện thoại nhận:</strong> {request.Notes.Split('|')[2].Replace("SĐT: ", "").Trim()}</p>
-                            <p><strong>Ghi chú giao hàng:</strong> {request.Notes.Split('|')[0].Replace("Ghi chú: ", "").Trim()}</p>
+                        <div style='background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 15px; margin-bottom: 15px;'>
+                            <p style='margin: 5px 0;'><strong>Mã đơn hàng:</strong> #{order.Id}</p>
+                            <p style='margin: 5px 0;'><strong>Ngày đặt:</strong> {order.OrderDate.ToString("dd/MM/yyyy HH:mm")}</p>
+                            <p style='margin: 5px 0;'><strong>Số điện thoại nhận hàng:</strong> {phoneReceive}</p>
+                            <p style='margin: 5px 0;'><strong>Ghi chú giao nhận:</strong> {deliveryNote}</p>
                         </div>
 
-                        <h3 style='border-bottom: 2px solid #D9643A; padding-bottom: 5px;'>Tổng tiền thanh toán: <span style='color: #D9643A;'>{totalAmount.ToString("N0")} đ</span></h3>
+                        <h3 style='background: #FFF5F1; color: #D9643A; padding: 12px; border-radius: 6px; margin-top: 20px;'>
+                            Tổng tiền cần thanh toán: {totalAmount.ToString("N0")} đ
+                        </h3>
                         
-                        <p>Chúng tôi sẽ sớm liên hệ với bạn để xác nhận giao hàng. Vui lòng giữ điện thoại!</p>
-                        <p>Trân trọng,<br><strong>Đội ngũ Solis Eyewear</strong></p>
+                        <p style='font-size: 0.9rem; color: #666; margin-top: 20px;'>Chúng tôi sẽ sớm gọi điện xác nhận lộ trình giao hàng cho bạn. Vui lòng để ý điện thoại nhé!</p>
+                        <hr style='border: none; border-top: 1px solid #eee; margin: 20px 0;' />
+                        <p style='font-size: 0.85rem; color: #999;'>Trân trọng,<br><strong>Đội ngũ Solis Eyewear System</strong></p>
                     </div>";
 
-                var mailMessage = new MailMessage
-                {
-                    From = new MailAddress(fromEmail, "Solis Eyewear"),
-                    Subject = $"[Solis Eyewear] Xác nhận đơn hàng thành công - #{order.Id}",
-                    Body = body,
-                    IsBodyHtml = true
-                };
-                mailMessage.To.Add(customer.Email);
-
-                await smtpClient.SendMailAsync(mailMessage);
+                // 🚨 ĐIỂM CHỐT: Gọi hàm của EmailService (Sử dụng cấu hình MailKit có sẵn của bạn)
+                await _emailService.SendOrderConfirmationAsync(customer.Email, subject, htmlContent);
             }
             catch (Exception ex)
             {
-                // Nếu gửi lỗi, in ra Console để debug, không ảnh hưởng đến đơn hàng của khách
-                System.Diagnostics.Debug.WriteLine($"[Lỗi Email]: {ex.Message}");
+                // In ra màn hình chẩn đoán lỗi trong Visual Studio nếu tiến trình ngầm có trục trặc
+                System.Diagnostics.Debug.WriteLine($"[Lỗi đóng gói Email Checkout]: {ex.Message}");
             }
         }
     }
